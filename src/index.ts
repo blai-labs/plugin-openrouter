@@ -6,6 +6,7 @@ import type {
   ObjectGenerationParams,
   Plugin,
   GenerateTextParams,
+  ImageDescriptionParams,
 } from '@elizaos/core';
 import { EventType, logger, ModelType, safeReplacer } from '@elizaos/core';
 import {
@@ -75,6 +76,19 @@ function getLargeModel(runtime: IAgentRuntime): string {
   return (
     getSetting(runtime, 'OPENROUTER_LARGE_MODEL') ??
     getSetting(runtime, 'LARGE_MODEL', 'google/gemini-pro')
+  );
+}
+
+/**
+ * Helper function to get the image model name with fallbacks
+ *
+ * @param runtime The runtime context
+ * @returns The configured image model name
+ */
+function getImageModel(runtime: IAgentRuntime): string {
+  return (
+    getSetting(runtime, 'OPENROUTER_IMAGE_MODEL') ??
+    getSetting(runtime, 'IMAGE_MODEL', 'x-ai/grok-2-vision-1212')
   );
 }
 
@@ -224,7 +238,7 @@ function emitModelUsageEvent(
  * Defines the OpenAI plugin with its name, description, and configuration options.
  * @type {Plugin}
  */
-export const openaiPlugin: Plugin = {
+export const openrouterPlugin: Plugin = {
   name: 'openrouter',
   description: 'OpenAI plugin',
   config: {
@@ -232,8 +246,10 @@ export const openaiPlugin: Plugin = {
     OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,
     OPENROUTER_SMALL_MODEL: process.env.OPENROUTER_SMALL_MODEL,
     OPENROUTER_LARGE_MODEL: process.env.OPENROUTER_LARGE_MODEL,
+    OPENROUTER_IMAGE_MODEL: process.env.OPENROUTER_IMAGE_MODEL,
     SMALL_MODEL: process.env.SMALL_MODEL,
     LARGE_MODEL: process.env.LARGE_MODEL,
+    IMAGE_MODEL: process.env.IMAGE_MODEL,
   },
   async init(_config, runtime) {
     try {
@@ -377,6 +393,76 @@ export const openaiPlugin: Plugin = {
     [ModelType.OBJECT_LARGE]: async (runtime: IAgentRuntime, params: ObjectGenerationParams) => {
       return generateObjectByModelType(runtime, params, ModelType.OBJECT_LARGE, getLargeModel);
     },
+    [ModelType.IMAGE_DESCRIPTION]: async (
+      runtime: IAgentRuntime,
+      params: ImageDescriptionParams | string
+    ) => {
+      let imageUrl: string;
+      let promptText: string | undefined;
+      const modelName = getImageModel(runtime);
+      logger.log(`[OpenRouter] Using IMAGE_DESCRIPTION model: ${modelName}`);
+      const maxTokens = 300;
+
+      if (typeof params === 'string') {
+        imageUrl = params;
+        promptText = 'Please analyze this image and provide a title and detailed description.';
+      } else {
+        imageUrl = params.imageUrl;
+        promptText =
+          params.prompt ||
+          'Please analyze this image and provide a title and detailed description.';
+      }
+
+      const openrouter = createOpenRouterProvider(runtime);
+
+      const messages = [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: promptText },
+            { type: 'image_url', image_url: { url: imageUrl } },
+          ],
+        },
+      ];
+
+      try {
+        logger.log('Sending image description request to OpenRouter');
+        const model = openrouter.chat(modelName);
+        
+        const { text: responseText } = await generateText({
+          model: model,
+          prompt: JSON.stringify(messages),
+          maxTokens: maxTokens,
+        });
+        
+        logger.log('Received response for image description');
+        
+        // Try to parse the response as JSON first
+        try {
+          const jsonResponse = JSON.parse(responseText);
+          if (jsonResponse.title && jsonResponse.description) {
+            return jsonResponse;
+          }
+        } catch (e) {
+          // If not valid JSON, process as text
+          logger.debug(`Parsing as JSON failed, processing as text: ${e}`);
+        }
+        
+        // Extract title and description from text format
+        const titleMatch = responseText.match(/title[:\s]+(.+?)(?:\n|$)/i);
+        const title = titleMatch?.[1]?.trim() || 'Image Analysis';
+        const description = responseText.replace(/title[:\s]+(.+?)(?:\n|$)/i, '').trim();
+        
+        return { title, description };
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(`Error analyzing image: ${message}`);
+        return {
+          title: 'Failed to analyze image',
+          description: `Error: ${message}`,
+        };
+      }
+    },
   },
 };
-export default openaiPlugin;
+export default openrouterPlugin;
