@@ -32,7 +32,9 @@
   "devDependencies": {
     "prettier": "3.5.3",
     "tsup": "8.4.0",
-    "typescript": "5.8.2"
+    "typescript": "5.8.2",
+    "vitest": "1.6.1",
+    "dotenv": "^16.4.5"
   },
   "scripts": {
     "build": "tsup",
@@ -40,7 +42,9 @@
     "lint": "prettier --write ./src",
     "clean": "rm -rf dist .turbo node_modules .turbo-tsconfig.json tsconfig.tsbuildinfo",
     "format": "prettier --write ./src",
-    "format:check": "prettier --check ./src"
+    "format:check": "prettier --check ./src",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "publishConfig": {
     "access": "public"
