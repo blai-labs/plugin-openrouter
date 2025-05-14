@@ -1,5 +1,5 @@
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { getProviderBaseURL } from '@elizaos/core';
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { getProviderBaseURL } from "@elizaos/core";
 import type {
   IAgentRuntime,
   ModelTypeName,
@@ -7,16 +7,16 @@ import type {
   Plugin,
   GenerateTextParams,
   ImageDescriptionParams,
-} from '@elizaos/core';
-import { EventType, logger, ModelType, safeReplacer } from '@elizaos/core';
+} from "@elizaos/core";
+import { EventType, logger, ModelType, safeReplacer } from "@elizaos/core";
 import {
   generateObject,
   generateText,
   JSONParseError,
   type JSONValue,
   type LanguageModelUsage,
-} from 'ai';
-import { fetch } from 'undici';
+} from "ai";
+import { fetch } from "undici";
 
 /**
  * Retrieves a configuration setting from the runtime, falling back to environment variables or a default value if not found.
@@ -39,8 +39,16 @@ function getSetting(
  * @returns The resolved base URL for OpenAI API requests.
  */
 function getBaseURL(runtime: IAgentRuntime): string {
-  const defaultBaseURL = getSetting(runtime, 'OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1') as string;
-  const providerBaseURL = getProviderBaseURL(runtime, 'openrouter', defaultBaseURL);
+  const defaultBaseURL = getSetting(
+    runtime,
+    "OPENROUTER_BASE_URL",
+    "https://openrouter.ai/api/v1"
+  ) as string;
+  const providerBaseURL = getProviderBaseURL(
+    runtime,
+    "openrouter",
+    defaultBaseURL
+  );
   return providerBaseURL || defaultBaseURL;
 }
 
@@ -51,7 +59,7 @@ function getBaseURL(runtime: IAgentRuntime): string {
  * @returns The configured API key
  */
 function getApiKey(runtime: IAgentRuntime): string | undefined {
-  return getSetting(runtime, 'OPENROUTER_API_KEY');
+  return getSetting(runtime, "OPENROUTER_API_KEY");
 }
 
 /**
@@ -62,9 +70,9 @@ function getApiKey(runtime: IAgentRuntime): string | undefined {
  */
 function getSmallModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, 'OPENROUTER_SMALL_MODEL') ??
-    getSetting(runtime, 'SMALL_MODEL', 'google/gemini-flash') ??
-    'google/gemini-flash'
+    getSetting(runtime, "OPENROUTER_SMALL_MODEL") ??
+    getSetting(runtime, "SMALL_MODEL", "google/gemini-flash") ??
+    "google/gemini-flash"
   );
 }
 
@@ -76,9 +84,9 @@ function getSmallModel(runtime: IAgentRuntime): string {
  */
 function getLargeModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, 'OPENROUTER_LARGE_MODEL') ??
-    getSetting(runtime, 'LARGE_MODEL', 'google/gemini-pro') ??
-    'google/gemini-pro'
+    getSetting(runtime, "OPENROUTER_LARGE_MODEL") ??
+    getSetting(runtime, "LARGE_MODEL", "google/gemini-pro") ??
+    "google/gemini-pro"
   );
 }
 
@@ -90,9 +98,9 @@ function getLargeModel(runtime: IAgentRuntime): string {
  */
 function getImageModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, 'OPENROUTER_IMAGE_MODEL') ??
-    getSetting(runtime, 'IMAGE_MODEL', 'x-ai/grok-2-vision-1212') ??
-    'x-ai/grok-2-vision-1212'
+    getSetting(runtime, "OPENROUTER_IMAGE_MODEL") ??
+    getSetting(runtime, "IMAGE_MODEL", "x-ai/grok-2-vision-1212") ??
+    "x-ai/grok-2-vision-1212"
   );
 }
 
@@ -106,8 +114,10 @@ function createOpenRouterProvider(runtime: IAgentRuntime) {
   const apiKey = getApiKey(runtime);
   if (!apiKey) {
     // This case should ideally be caught in init, but good practice to check
-    logger.error('OpenRouter API Key is missing when trying to create provider');
-    throw new Error('OpenRouter API Key is missing.');
+    logger.error(
+      "OpenRouter API Key is missing when trying to create provider"
+    );
+    throw new Error("OpenRouter API Key is missing.");
   }
 
   // Note: createOpenRouter doesn't seem to take baseURL directly in the documentation.
@@ -144,14 +154,19 @@ async function generateObjectByModelType(
   try {
     const { object, usage } = await generateObject({
       model: openrouter.chat(modelName),
-      output: 'no-schema',
+      output: "no-schema",
       prompt: params.prompt,
       temperature: temperature,
       experimental_repairText: getJsonRepairFunction(),
     });
 
     if (usage) {
-      emitModelUsageEvent(runtime, modelType as ModelTypeName, params.prompt, usage);
+      emitModelUsageEvent(
+        runtime,
+        modelType as ModelTypeName,
+        params.prompt,
+        usage
+      );
     }
     return object;
   } catch (error: unknown) {
@@ -166,19 +181,25 @@ async function generateObjectByModelType(
       if (repairedJsonString) {
         try {
           const repairedObject = JSON.parse(repairedJsonString);
-          logger.info('[generateObject] Successfully repaired JSON.');
+          logger.info("[generateObject] Successfully repaired JSON.");
           return repairedObject;
         } catch (repairParseError: unknown) {
           const message =
-            repairParseError instanceof Error ? repairParseError.message : String(repairParseError);
-          logger.error(`[generateObject] Failed to parse repaired JSON: ${message}`);
+            repairParseError instanceof Error
+              ? repairParseError.message
+              : String(repairParseError);
+          logger.error(
+            `[generateObject] Failed to parse repaired JSON: ${message}`
+          );
           const exception =
-            repairParseError instanceof Error ? repairParseError : new Error(message);
+            repairParseError instanceof Error
+              ? repairParseError
+              : new Error(message);
           throw exception;
         }
       } else {
         const errMsg = error instanceof Error ? error.message : String(error);
-        logger.error('[generateObject] JSON repair failed.');
+        logger.error("[generateObject] JSON repair failed.");
         throw error;
       }
     } else {
@@ -200,13 +221,14 @@ function getJsonRepairFunction(): (params: {
   return async ({ text, error }: { text: string; error: unknown }) => {
     try {
       if (error instanceof JSONParseError) {
-        const cleanedText = text.replace(/```json\n|\n```|```/g, '');
+        const cleanedText = text.replace(/```json\n|\n```|```/g, "");
         JSON.parse(cleanedText);
         return cleanedText;
       }
       return null;
     } catch (jsonError: unknown) {
-      const message = jsonError instanceof Error ? jsonError.message : String(jsonError);
+      const message =
+        jsonError instanceof Error ? jsonError.message : String(jsonError);
       logger.warn(`Failed to repair JSON text: ${message}`);
       return null;
     }
@@ -227,7 +249,7 @@ function emitModelUsageEvent(
   usage: LanguageModelUsage
 ) {
   runtime.emitEvent(EventType.MODEL_USED, {
-    provider: 'openrouter',
+    provider: "openrouter",
     type,
     prompt,
     tokens: {
@@ -243,8 +265,8 @@ function emitModelUsageEvent(
  * @type {Plugin}
  */
 export const openrouterPlugin: Plugin = {
-  name: 'openrouter',
-  description: 'OpenAI plugin',
+  name: "openrouter",
+  description: "OpenAI plugin",
   config: {
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,
@@ -259,7 +281,7 @@ export const openrouterPlugin: Plugin = {
     try {
       if (!getApiKey(runtime)) {
         logger.warn(
-          'OPENROUTER_API_KEY is not set in environment - OpenAI functionality will be limited'
+          "OPENROUTER_API_KEY is not set in environment - OpenAI functionality will be limited"
         );
         return;
       }
@@ -269,21 +291,29 @@ export const openrouterPlugin: Plugin = {
           headers: { Authorization: `Bearer ${getApiKey(runtime)}` },
         });
         if (!response.ok) {
-          logger.warn(`OpenAI API key validation failed: ${response.statusText}`);
-          logger.warn('OpenAI functionality will be limited until a valid API key is provided');
+          logger.warn(
+            `OpenAI API key validation failed: ${response.statusText}`
+          );
+          logger.warn(
+            "OpenAI functionality will be limited until a valid API key is provided"
+          );
         } else {
-          logger.log('OpenAI API key validated successfully');
+          logger.log("OpenAI API key validated successfully");
         }
       } catch (fetchError: unknown) {
-        const message = fetchError instanceof Error ? fetchError.message : String(fetchError);
+        const message =
+          fetchError instanceof Error ? fetchError.message : String(fetchError);
         logger.warn(`Error validating OpenAI API key: ${message}`);
-        logger.warn('OpenAI functionality will be limited until a valid API key is provided');
+        logger.warn(
+          "OpenAI functionality will be limited until a valid API key is provided"
+        );
       }
     } catch (error: unknown) {
       const message =
         (error as { errors?: Array<{ message: string }> })?.errors
           ?.map((e) => e.message)
-          .join(', ') || (error instanceof Error ? error.message : String(error));
+          .join(", ") ||
+        (error instanceof Error ? error.message : String(error));
       logger.warn(
         `OpenAI plugin configuration issue: ${message} - You need to configure the OPENROUTER_API_KEY in your environment variables`
       );
@@ -302,10 +332,10 @@ export const openrouterPlugin: Plugin = {
       const openrouter = createOpenRouterProvider(runtime);
       const modelName = getSmallModel(runtime);
 
-      logger.log('generating text');
+      logger.log("generating text");
       logger.log(prompt);
 
-      let responseText = '';
+      let responseText = "";
       let usage: LanguageModelUsage | undefined;
       const model = openrouter.chat(modelName);
       const system = runtime.character.system ?? undefined;
@@ -361,10 +391,10 @@ export const openrouterPlugin: Plugin = {
       const openrouter = createOpenRouterProvider(runtime);
       const modelName = getLargeModel(runtime);
 
-      logger.log('generating text');
+      logger.log("generating text");
       logger.log(prompt);
 
-      let responseText = '';
+      let responseText = "";
       let usage: LanguageModelUsage | undefined;
       try {
         const { text, usage: usageData } = await generateText({
@@ -391,11 +421,27 @@ export const openrouterPlugin: Plugin = {
 
       return responseText;
     },
-    [ModelType.OBJECT_SMALL]: async (runtime: IAgentRuntime, params: ObjectGenerationParams) => {
-      return generateObjectByModelType(runtime, params, ModelType.OBJECT_SMALL, getSmallModel);
+    [ModelType.OBJECT_SMALL]: async (
+      runtime: IAgentRuntime,
+      params: ObjectGenerationParams
+    ) => {
+      return generateObjectByModelType(
+        runtime,
+        params,
+        ModelType.OBJECT_SMALL,
+        getSmallModel
+      );
     },
-    [ModelType.OBJECT_LARGE]: async (runtime: IAgentRuntime, params: ObjectGenerationParams) => {
-      return generateObjectByModelType(runtime, params, ModelType.OBJECT_LARGE, getLargeModel);
+    [ModelType.OBJECT_LARGE]: async (
+      runtime: IAgentRuntime,
+      params: ObjectGenerationParams
+    ) => {
+      return generateObjectByModelType(
+        runtime,
+        params,
+        ModelType.OBJECT_LARGE,
+        getLargeModel
+      );
     },
     [ModelType.IMAGE_DESCRIPTION]: async (
       runtime: IAgentRuntime,
@@ -407,40 +453,41 @@ export const openrouterPlugin: Plugin = {
       logger.log(`[OpenRouter] Using IMAGE_DESCRIPTION model: ${modelName}`);
       const maxTokens = 300;
 
-      if (typeof params === 'string') {
+      if (typeof params === "string") {
         imageUrl = params;
-        promptText = 'Please analyze this image and provide a title and detailed description.';
+        promptText =
+          "Please analyze this image and provide a title and detailed description.";
       } else {
         imageUrl = params.imageUrl;
         promptText =
           params.prompt ||
-          'Please analyze this image and provide a title and detailed description.';
+          "Please analyze this image and provide a title and detailed description.";
       }
 
       const openrouter = createOpenRouterProvider(runtime);
 
       const messages = [
         {
-          role: 'user',
+          role: "user",
           content: [
-            { type: 'text', text: promptText },
-            { type: 'image_url', image_url: { url: imageUrl } },
+            { type: "text", text: promptText },
+            { type: "image_url", image_url: { url: imageUrl } },
           ],
         },
       ];
 
       try {
-        logger.log('Sending image description request to OpenRouter');
+        logger.log("Sending image description request to OpenRouter");
         const model = openrouter.chat(modelName);
-        
+
         const { text: responseText } = await generateText({
           model: model,
           prompt: JSON.stringify(messages),
           maxTokens: maxTokens,
         });
-        
-        logger.log('Received response for image description');
-        
+
+        logger.log("Received response for image description");
+
         // Try to parse the response as JSON first
         try {
           const jsonResponse = JSON.parse(responseText);
@@ -451,18 +498,20 @@ export const openrouterPlugin: Plugin = {
           // If not valid JSON, process as text
           logger.debug(`Parsing as JSON failed, processing as text: ${e}`);
         }
-        
+
         // Extract title and description from text format
         const titleMatch = responseText.match(/title[:\s]+(.+?)(?:\n|$)/i);
-        const title = titleMatch?.[1]?.trim() || 'Image Analysis';
-        const description = responseText.replace(/title[:\s]+(.+?)(?:\n|$)/i, '').trim();
-        
+        const title = titleMatch?.[1]?.trim() || "Image Analysis";
+        const description = responseText
+          .replace(/title[:\s]+(.+?)(?:\n|$)/i, "")
+          .trim();
+
         return { title, description };
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         logger.error(`Error analyzing image: ${message}`);
         return {
-          title: 'Failed to analyze image',
+          title: "Failed to analyze image",
           description: `Error: ${message}`,
         };
       }
