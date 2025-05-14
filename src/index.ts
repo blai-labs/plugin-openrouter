@@ -39,8 +39,9 @@ function getSetting(
  * @returns The resolved base URL for OpenAI API requests.
  */
 function getBaseURL(runtime: IAgentRuntime): string {
-  const defaultBaseURL = getSetting(runtime, 'OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1');
-  return getProviderBaseURL(runtime, 'openrouter', defaultBaseURL);
+  const defaultBaseURL = getSetting(runtime, 'OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1') as string;
+  const providerBaseURL = getProviderBaseURL(runtime, 'openrouter', defaultBaseURL);
+  return providerBaseURL || defaultBaseURL;
 }
 
 /**
@@ -62,7 +63,8 @@ function getApiKey(runtime: IAgentRuntime): string | undefined {
 function getSmallModel(runtime: IAgentRuntime): string {
   return (
     getSetting(runtime, 'OPENROUTER_SMALL_MODEL') ??
-    getSetting(runtime, 'SMALL_MODEL', 'google/gemini-flash')
+    getSetting(runtime, 'SMALL_MODEL', 'google/gemini-flash') ??
+    'google/gemini-flash'
   );
 }
 
@@ -75,7 +77,8 @@ function getSmallModel(runtime: IAgentRuntime): string {
 function getLargeModel(runtime: IAgentRuntime): string {
   return (
     getSetting(runtime, 'OPENROUTER_LARGE_MODEL') ??
-    getSetting(runtime, 'LARGE_MODEL', 'google/gemini-pro')
+    getSetting(runtime, 'LARGE_MODEL', 'google/gemini-pro') ??
+    'google/gemini-pro'
   );
 }
 
@@ -88,7 +91,8 @@ function getLargeModel(runtime: IAgentRuntime): string {
 function getImageModel(runtime: IAgentRuntime): string {
   return (
     getSetting(runtime, 'OPENROUTER_IMAGE_MODEL') ??
-    getSetting(runtime, 'IMAGE_MODEL', 'x-ai/grok-2-vision-1212')
+    getSetting(runtime, 'IMAGE_MODEL', 'x-ai/grok-2-vision-1212') ??
+    'x-ai/grok-2-vision-1212'
   );
 }
 

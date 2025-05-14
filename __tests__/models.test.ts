@@ -1,6 +1,5 @@
 import { describe, test, expect, beforeAll } from 'vitest';
 import { openrouterPlugin } from '../src/index';
-import { EventType, ModelType } from '@elizaos/core';
 
 // Create a minimal mock runtime that satisfies the needs of our tests
 const mockRuntime = {
@@ -127,7 +126,7 @@ describe('OpenRouter Plugin', () => {
   });
 
   describe('IMAGE_DESCRIPTION Model', () => {
-    test.only('should describe an image with IMAGE_DESCRIPTION model', async () => {
+    test('should describe an image with IMAGE_DESCRIPTION model', async () => {
       if (!process.env.OPENROUTER_API_KEY) {
         console.warn('Skipping test: OPENROUTER_API_KEY not set');
         return;
