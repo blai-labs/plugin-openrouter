@@ -63,8 +63,8 @@ function getApiKey(runtime: IAgentRuntime): string | undefined {
 function getSmallModel(runtime: IAgentRuntime): string {
   return (
     getSetting(runtime, 'OPENROUTER_SMALL_MODEL') ??
-    getSetting(runtime, 'SMALL_MODEL', 'google/gemini-flash') ??
-    'google/gemini-flash'
+    getSetting(runtime, 'SMALL_MODEL', 'google/gemini-2.0-flash-001') ??
+    'google/gemini-2.0-flash-001'
   );
 }
 
@@ -77,8 +77,8 @@ function getSmallModel(runtime: IAgentRuntime): string {
 function getLargeModel(runtime: IAgentRuntime): string {
   return (
     getSetting(runtime, 'OPENROUTER_LARGE_MODEL') ??
-    getSetting(runtime, 'LARGE_MODEL', 'google/gemini-pro') ??
-    'google/gemini-pro'
+    getSetting(runtime, 'LARGE_MODEL', 'google/gemini-2.5-flash-preview-05-20') ??
+    'google/gemini-2.5-flash-preview-05-20'
   );
 }
 
