@@ -1,6 +1,6 @@
 {
   "name": "@elizaos/plugin-openrouter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -51,50 +51,6 @@
   },
   "agentConfig": {
     "pluginType": "elizaos:plugin:1.0.0",
-    "pluginParameters": {
-      "OPENROUTER_API_KEY": {
-        "type": "string",
-        "description": "API key for the service"
-      },
-      "OPENROUTER_BASE_URL": {
-        "type": "string",
-        "description": "Custom base URL for the OpenRouter API endpoint",
-        "required": false,
-        "default": "https://openrouter.ai/api/v1"
-      },
-      "OPENROUTER_SMALL_MODEL": {
-        "type": "string",
-        "description": "Specific small model to use for TEXT_SMALL and OBJECT_SMALL tasks; overrides SMALL_MODEL when provided",
-        "required": false
-      },
-      "OPENROUTER_LARGE_MODEL": {
-        "type": "string",
-        "description": "Specific large model to use for TEXT_LARGE and OBJECT_LARGE tasks; overrides LARGE_MODEL when provided",
-        "required": false
-      },
-      "OPENROUTER_IMAGE_MODEL": {
-        "type": "string",
-        "description": "Specific image model to use for IMAGE_DESCRIPTION tasks; overrides IMAGE_MODEL when provided",
-        "required": false
-      },
-      "SMALL_MODEL": {
-        "type": "string",
-        "description": "Fallback small model used when OPENROUTER_SMALL_MODEL is not set",
-        "required": false,
-        "default": "google/gemini-flash"
-      },
-      "LARGE_MODEL": {
-        "type": "string",
-        "description": "Fallback large model used when OPENROUTER_LARGE_MODEL is not set",
-        "required": false,
-        "default": "google/gemini-pro"
-      },
-      "IMAGE_MODEL": {
-        "type": "string",
-        "description": "Fallback image model used when OPENROUTER_IMAGE_MODEL is not set",
-        "required": false,
-        "default": "x-ai/grok-2-vision-1212"
-      }
-    }
+    "pluginParameters": {}
   }
 }
