@@ -55,7 +55,7 @@
       "OPENROUTER_API_KEY": {
         "type": "string",
         "description": "API key used by the OpenRouter plugin for authenticating requests.",
-        "required": false,
+        "required": true,
         "sensitive": true
       },
       "OPENROUTER_IMAGE_MODEL": {
