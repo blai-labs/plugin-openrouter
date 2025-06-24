@@ -45,7 +45,7 @@ function getBaseURL(runtime: IAgentRuntime): string {
 }
 
 /**
- * Helper function to get the API key for OpenAI
+ * Helper function to get the API key for OpenRouter
  *
  * @param runtime The runtime context
  * @returns The configured API key
@@ -112,7 +112,7 @@ function createOpenRouterProvider(runtime: IAgentRuntime) {
 
   // Note: createOpenRouter doesn't seem to take baseURL directly in the documentation.
   // It might pick it up from OPENROUTER_BASE_URL env var automatically,
-  // or it might not be needed/configurable in the same way as createOpenAI.
+  // or it might not be needed/configurable in the same way as createOpenRouter.
   // We'll rely on the apiKey for now.
   return createOpenRouter({
     apiKey: apiKey,
@@ -239,12 +239,12 @@ function emitModelUsageEvent(
 }
 
 /**
- * Defines the OpenAI plugin with its name, description, and configuration options.
+ * Defines the OpenRouter plugin with its name, description, and configuration options.
  * @type {Plugin}
  */
 export const openrouterPlugin: Plugin = {
   name: 'openrouter',
-  description: 'OpenAI plugin',
+  description: 'OpenRouter plugin',
   config: {
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,
@@ -256,38 +256,43 @@ export const openrouterPlugin: Plugin = {
     IMAGE_MODEL: process.env.IMAGE_MODEL,
   },
   async init(_config, runtime) {
-    try {
-      if (!getApiKey(runtime)) {
-        logger.warn(
-          'OPENROUTER_API_KEY is not set in environment - OpenAI functionality will be limited'
-        );
-        return;
-      }
+    // do check in the background
+    new Promise<void>(async resolve => {
+      resolve()
       try {
-        const baseURL = getBaseURL(runtime);
-        const response = await fetch(`${baseURL}/models`, {
-          headers: { Authorization: `Bearer ${getApiKey(runtime)}` },
-        });
-        if (!response.ok) {
-          logger.warn(`OpenAI API key validation failed: ${response.statusText}`);
-          logger.warn('OpenAI functionality will be limited until a valid API key is provided');
-        } else {
-          logger.log('OpenAI API key validated successfully');
+        if (!getApiKey(runtime)) {
+          logger.warn(
+            'OPENROUTER_API_KEY is not set in environment - OpenRouter functionality will be limited'
+          );
+          return;
         }
-      } catch (fetchError: unknown) {
-        const message = fetchError instanceof Error ? fetchError.message : String(fetchError);
-        logger.warn(`Error validating OpenAI API key: ${message}`);
-        logger.warn('OpenAI functionality will be limited until a valid API key is provided');
+        try {
+          const baseURL = getBaseURL(runtime);
+          const response = await fetch(`${baseURL}/models`, {
+            headers: { Authorization: `Bearer ${getApiKey(runtime)}` },
+          });
+          if (!response.ok) {
+            logger.warn(`OpenRouter API key validation failed: ${response.statusText}`);
+            logger.warn('OpenRouter functionality will be limited until a valid API key is provided');
+          } else {
+            logger.log('OpenRouter API key validated successfully');
+          }
+        } catch (fetchError: unknown) {
+          const message = fetchError instanceof Error ? fetchError.message : String(fetchError);
+          logger.warn(`Error validating OpenRouter API key: ${message}`);
+          logger.warn('OpenRouter functionality will be limited until a valid API key is provided');
+        }
+      } catch (error: unknown) {
+        const message =
+          (error as { errors?: Array<{ message: string }> })?.errors
+            ?.map((e) => e.message)
+            .join(', ') || (error instanceof Error ? error.message : String(error));
+        logger.warn(
+          `OpenRouter plugin configuration issue: ${message} - You need to configure the OPENROUTER_API_KEY in your environment variables`
+        );
       }
-    } catch (error: unknown) {
-      const message =
-        (error as { errors?: Array<{ message: string }> })?.errors
-          ?.map((e) => e.message)
-          .join(', ') || (error instanceof Error ? error.message : String(error));
-      logger.warn(
-        `OpenAI plugin configuration issue: ${message} - You need to configure the OPENROUTER_API_KEY in your environment variables`
-      );
-    }
+    })
+    return
   },
   models: {
     [ModelType.TEXT_SMALL]: async (
