@@ -1,3 +1,3 @@
-export { generateTextWithModel } from './text';
-export { generateObjectByModelType } from './object';
-export { generateImageDescription } from './image';
+export { handleTextSmall, handleTextLarge } from './text';
+export { handleObjectSmall, handleObjectLarge } from './object';
+export { handleImageDescription } from './image';

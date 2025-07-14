@@ -11,7 +11,7 @@ import { handleEmptyToolResponse } from '../utils/helpers';
  */
 async function generateTextWithModel(
   runtime: IAgentRuntime,
-  modelType: ModelType,
+  modelType: typeof ModelType.TEXT_SMALL | typeof ModelType.TEXT_LARGE,
   params: GenerateTextParams & {
     tools?: Record<string, Tool>;
     toolChoice?: ToolChoice<Record<string, Tool>>;
@@ -29,7 +29,7 @@ async function generateTextWithModel(
 
   logger.log(`[OpenRouter] Generating text with ${modelLabel} model: ${modelName}`);
 
-  const generateParams: any = {
+  const generateParams: Parameters<typeof generateText>[0] = {
     model: openrouter.chat(modelName),
     prompt: prompt,
     system: runtime.character.system ?? undefined,

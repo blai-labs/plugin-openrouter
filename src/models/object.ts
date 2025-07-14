@@ -10,7 +10,7 @@ import { getJsonRepairFunction } from '../utils/response';
  */
 async function generateObjectWithModel(
   runtime: IAgentRuntime,
-  modelType: ModelType,
+  modelType: typeof ModelType.OBJECT_SMALL | typeof ModelType.OBJECT_LARGE,
   params: ObjectGenerationParams
 ): Promise<unknown> {
   const openrouter = createOpenRouterProvider(runtime);
