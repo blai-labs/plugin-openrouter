@@ -29,7 +29,7 @@ async function generateTextWithModel(
 
   logger.log(`[OpenRouter] Generating text with ${modelLabel} model: ${modelName}`);
 
-  const generateParams: Parameters<typeof generateText>[0] = {
+  const generateParams: Parameters<typeof generateText>[0] & { extra_body?: any } = {
     model: openrouter.chat(modelName),
     prompt: prompt,
     system: runtime.character.system ?? undefined,
