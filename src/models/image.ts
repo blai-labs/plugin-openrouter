@@ -1,6 +1,6 @@
 import { logger, type IAgentRuntime, type ImageDescriptionParams } from '@elizaos/core';
 import { generateText } from 'ai';
-import { createOpenRouterProvider } from '../provider';
+import { createOpenRouterProvider } from '../providers';
 import { getImageModel } from '../utils/config';
 
 /**

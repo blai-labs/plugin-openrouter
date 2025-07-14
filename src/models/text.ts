@@ -1,7 +1,7 @@
 import { ModelType, logger, type IAgentRuntime, type GenerateTextParams } from '@elizaos/core';
 import type { Tool, ToolChoice } from 'ai';
 import { generateText } from 'ai';
-import { createOpenRouterProvider } from '../provider';
+import { createOpenRouterProvider } from '../providers';
 import { getSmallModel, getLargeModel } from '../utils/config';
 import { emitModelUsageEvent } from '../utils/events';
 import { handleEmptyToolResponse } from '../utils/helpers';

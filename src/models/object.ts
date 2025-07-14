@@ -1,6 +1,6 @@
 import { ModelType, logger, type IAgentRuntime, type ObjectGenerationParams } from '@elizaos/core';
 import { generateObject, JSONParseError } from 'ai';
-import { createOpenRouterProvider } from '../provider';
+import { createOpenRouterProvider } from '../providers';
 import { getSmallModel, getLargeModel } from '../utils/config';
 import { emitModelUsageEvent } from '../utils/events';
 import { getJsonRepairFunction } from '../utils/response';
