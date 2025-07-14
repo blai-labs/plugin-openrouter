@@ -1,15 +1,19 @@
-import { logger, type IAgentRuntime, type ImageDescriptionParams } from '@elizaos/core';
-import { generateText } from 'ai';
-import { createOpenRouterProvider } from '../providers';
-import { getImageModel } from '../utils/config';
-import { parseImageDescriptionResponse } from '../utils/helpers';
+import {
+  logger,
+  type IAgentRuntime,
+  type ImageDescriptionParams,
+} from "@elizaos/core";
+import { generateText } from "ai";
+import { createOpenRouterProvider } from "../providers";
+import { getImageModel } from "../utils/config";
+import { parseImageDescriptionResponse } from "../utils/helpers";
 
 /**
  * IMAGE_DESCRIPTION model handler
  */
 export async function handleImageDescription(
   runtime: IAgentRuntime,
-  params: ImageDescriptionParams | string
+  params: ImageDescriptionParams | string,
 ): Promise<{ title: string; description: string }> {
   let imageUrl: string;
   let promptText: string | undefined;
@@ -17,22 +21,25 @@ export async function handleImageDescription(
   logger.log(`[OpenRouter] Using IMAGE_DESCRIPTION model: ${modelName}`);
   const maxTokens = 300;
 
-  if (typeof params === 'string') {
+  if (typeof params === "string") {
     imageUrl = params;
-    promptText = 'Please analyze this image and provide a title and detailed description.';
+    promptText =
+      "Please analyze this image and provide a title and detailed description.";
   } else {
     imageUrl = params.imageUrl;
-    promptText = params.prompt || 'Please analyze this image and provide a title and detailed description.';
+    promptText =
+      params.prompt ||
+      "Please analyze this image and provide a title and detailed description.";
   }
 
   const openrouter = createOpenRouterProvider(runtime);
 
   const messages = [
     {
-      role: 'user' as const,
+      role: "user" as const,
       content: [
-        { type: 'text' as const, text: promptText },
-        { type: 'image' as const, image: imageUrl },
+        { type: "text" as const, text: promptText },
+        { type: "image" as const, image: imageUrl },
       ],
     },
   ];
@@ -51,7 +58,7 @@ export async function handleImageDescription(
     const message = error instanceof Error ? error.message : String(error);
     logger.error(`Error analyzing image: ${message}`);
     return {
-      title: 'Failed to analyze image',
+      title: "Failed to analyze image",
       description: `Error: ${message}`,
     };
   }

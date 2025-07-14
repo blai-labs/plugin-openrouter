@@ -1,6 +1,6 @@
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { logger, type IAgentRuntime } from '@elizaos/core';
-import { getApiKey } from '../utils/config';
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { logger, type IAgentRuntime } from "@elizaos/core";
+import { getApiKey } from "../utils/config";
 
 /**
  * Create an OpenRouter provider instance with proper configuration
@@ -12,8 +12,10 @@ export function createOpenRouterProvider(runtime: IAgentRuntime) {
   const apiKey = getApiKey(runtime);
   if (!apiKey) {
     // This case should ideally be caught in init, but good practice to check
-    logger.error('OpenRouter API Key is missing when trying to create provider');
-    throw new Error('OpenRouter API Key is missing.');
+    logger.error(
+      "OpenRouter API Key is missing when trying to create provider",
+    );
+    throw new Error("OpenRouter API Key is missing.");
   }
 
   // Note: createOpenRouter doesn't seem to take baseURL directly in the documentation.

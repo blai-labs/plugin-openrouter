@@ -1,5 +1,9 @@
-import { EventType, type IAgentRuntime, type ModelTypeName } from '@elizaos/core';
-import type { LanguageModelUsage } from 'ai';
+import {
+  EventType,
+  type IAgentRuntime,
+  type ModelTypeName,
+} from "@elizaos/core";
+import type { LanguageModelUsage } from "ai";
 
 /**
  * Emits a model usage event
@@ -8,10 +12,10 @@ export function emitModelUsageEvent(
   runtime: IAgentRuntime,
   type: ModelTypeName,
   prompt: string,
-  usage: LanguageModelUsage
+  usage: LanguageModelUsage,
 ) {
   runtime.emitEvent(EventType.MODEL_USED, {
-    provider: 'openrouter',
+    provider: "openrouter",
     type,
     prompt,
     tokens: {

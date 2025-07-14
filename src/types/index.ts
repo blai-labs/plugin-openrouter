@@ -1,4 +1,4 @@
-import type { LanguageModelUsage } from 'ai';
+import type { LanguageModelUsage } from "ai";
 
 export interface OpenRouterConfig {
   apiKey?: string;

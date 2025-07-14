@@ -1,4 +1,4 @@
-import type { IAgentRuntime } from '@elizaos/core';
+import type { IAgentRuntime } from "@elizaos/core";
 
 /**
  * Retrieves a configuration setting from the runtime, falling back to environment variables or a default value if not found.
@@ -10,7 +10,7 @@ import type { IAgentRuntime } from '@elizaos/core';
 export function getSetting(
   runtime: IAgentRuntime,
   key: string,
-  defaultValue?: string
+  defaultValue?: string,
 ): string | undefined {
   return runtime.getSetting(key) ?? process.env[key] ?? defaultValue;
 }
@@ -22,8 +22,11 @@ export function getSetting(
  */
 export function getBaseURL(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, 'OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1') ||
-    'https://openrouter.ai/api/v1'
+    getSetting(
+      runtime,
+      "OPENROUTER_BASE_URL",
+      "https://openrouter.ai/api/v1",
+    ) || "https://openrouter.ai/api/v1"
   );
 }
 
@@ -34,7 +37,7 @@ export function getBaseURL(runtime: IAgentRuntime): string {
  * @returns The configured API key
  */
 export function getApiKey(runtime: IAgentRuntime): string | undefined {
-  return getSetting(runtime, 'OPENROUTER_API_KEY');
+  return getSetting(runtime, "OPENROUTER_API_KEY");
 }
 
 /**
@@ -45,9 +48,9 @@ export function getApiKey(runtime: IAgentRuntime): string | undefined {
  */
 export function getSmallModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, 'OPENROUTER_SMALL_MODEL') ??
-    getSetting(runtime, 'SMALL_MODEL', 'google/gemini-2.0-flash-001') ??
-    'google/gemini-2.0-flash-001'
+    getSetting(runtime, "OPENROUTER_SMALL_MODEL") ??
+    getSetting(runtime, "SMALL_MODEL", "google/gemini-2.0-flash-001") ??
+    "google/gemini-2.0-flash-001"
   );
 }
 
@@ -59,9 +62,13 @@ export function getSmallModel(runtime: IAgentRuntime): string {
  */
 export function getLargeModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, 'OPENROUTER_LARGE_MODEL') ??
-    getSetting(runtime, 'LARGE_MODEL', 'google/gemini-2.5-flash-preview-05-20') ??
-    'google/gemini-2.5-flash-preview-05-20'
+    getSetting(runtime, "OPENROUTER_LARGE_MODEL") ??
+    getSetting(
+      runtime,
+      "LARGE_MODEL",
+      "google/gemini-2.5-flash-preview-05-20",
+    ) ??
+    "google/gemini-2.5-flash-preview-05-20"
   );
 }
 
@@ -73,8 +80,8 @@ export function getLargeModel(runtime: IAgentRuntime): string {
  */
 export function getImageModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, 'OPENROUTER_IMAGE_MODEL') ??
-    getSetting(runtime, 'IMAGE_MODEL', 'x-ai/grok-2-vision-1212') ??
-    'x-ai/grok-2-vision-1212'
+    getSetting(runtime, "OPENROUTER_IMAGE_MODEL") ??
+    getSetting(runtime, "IMAGE_MODEL", "x-ai/grok-2-vision-1212") ??
+    "x-ai/grok-2-vision-1212"
   );
 }
