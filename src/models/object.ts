@@ -1,9 +1,9 @@
 import { ModelType, logger, type IAgentRuntime, type ObjectGenerationParams } from '@elizaos/core';
-import { generateObject, JSONParseError } from 'ai';
+import { generateObject } from 'ai';
 import { createOpenRouterProvider } from '../providers';
 import { getSmallModel, getLargeModel } from '../utils/config';
 import { emitModelUsageEvent } from '../utils/events';
-import { getJsonRepairFunction } from '../utils/response';
+import { getJsonRepairFunction, handleObjectGenerationError } from '../utils/helpers';
 
 /**
  * Common object generation logic for both small and large models
@@ -34,32 +34,7 @@ async function generateObjectWithModel(
     }
     return object;
   } catch (error: unknown) {
-    if (error instanceof JSONParseError) {
-      logger.error(`[generateObject] Failed to parse JSON: ${error.message}`);
-      const repairFunction = getJsonRepairFunction();
-      const repairedJsonString = await repairFunction({
-        text: error.text,
-        error,
-      });
-
-      if (repairedJsonString) {
-        try {
-          const repairedObject = JSON.parse(repairedJsonString);
-          logger.log('[generateObject] Successfully repaired JSON.');
-          return repairedObject;
-        } catch (repairParseError: unknown) {
-          const message = repairParseError instanceof Error ? repairParseError.message : String(repairParseError);
-          logger.error(`[generateObject] Failed to parse repaired JSON: ${message}`);
-          throw repairParseError;
-        }
-      } else {
-        throw error;
-      }
-    } else {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`[generateObject] Unknown error: ${message}`);
-      throw error;
-    }
+    return handleObjectGenerationError(error);
   }
 }
 

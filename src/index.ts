@@ -23,6 +23,10 @@ export const openrouterPlugin: Plugin = {
     IMAGE_MODEL: process.env.IMAGE_MODEL,
   },
   async init(config, runtime) {
+    // Note: We intentionally don't await here because ElizaOS expects 
+    // the init method to return quickly. The initializeOpenRouter function
+    // only performs synchronous validation and logging, so it's safe to
+    // call without await. This prevents blocking the plugin initialization.
     initializeOpenRouter(config, runtime);
   },
   models: {

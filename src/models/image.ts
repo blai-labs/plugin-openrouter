@@ -2,6 +2,7 @@ import { logger, type IAgentRuntime, type ImageDescriptionParams } from '@elizao
 import { generateText } from 'ai';
 import { createOpenRouterProvider } from '../providers';
 import { getImageModel } from '../utils/config';
+import { parseImageDescriptionResponse } from '../utils/helpers';
 
 /**
  * IMAGE_DESCRIPTION model handler
@@ -28,10 +29,10 @@ export async function handleImageDescription(
 
   const messages = [
     {
-      role: 'user',
+      role: 'user' as const,
       content: [
-        { type: 'text', text: promptText },
-        { type: 'image_url', image_url: { url: imageUrl } },
+        { type: 'text' as const, text: promptText },
+        { type: 'image' as const, image: imageUrl },
       ],
     },
   ];
@@ -41,27 +42,11 @@ export async function handleImageDescription(
 
     const { text: responseText } = await generateText({
       model: model,
-      prompt: JSON.stringify(messages),
+      messages: messages,
       maxTokens: maxTokens,
     });
 
-    // Try to parse the response as JSON first
-    try {
-      const jsonResponse = JSON.parse(responseText);
-      if (jsonResponse.title && jsonResponse.description) {
-        return jsonResponse;
-      }
-    } catch (e) {
-      // If not valid JSON, process as text
-      logger.debug(`Parsing as JSON failed, processing as text: ${e}`);
-    }
-
-    // Extract title and description from text format
-    const titleMatch = responseText.match(/title[:\s]+(.+?)(?:\n|$)/i);
-    const title = titleMatch?.[1]?.trim() || 'Image Analysis';
-    const description = responseText.replace(/title[:\s]+(.+?)(?:\n|$)/i, '').trim();
-
-    return { title, description };
+    return parseImageDescriptionResponse(responseText);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error(`Error analyzing image: ${message}`);
