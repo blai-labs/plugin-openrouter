@@ -112,9 +112,8 @@ export async function handleObjectGenerationError(
 				logger.error(
 					`[generateObject] Failed to parse repaired JSON: ${message}`,
 				);
-				throw repairParseError instanceof Error
-					? repairParseError
-					: new Error(message);
+				if (repairParseError instanceof Error) throw repairParseError;
+				throw Object.assign(new Error(message), { cause: repairParseError });
 			}
 		} else {
 			logger.error("[generateObject] JSON repair failed.");
@@ -123,6 +122,7 @@ export async function handleObjectGenerationError(
 	} else {
 		const message = error instanceof Error ? error.message : String(error);
 		logger.error(`[generateObject] Unknown error: ${message}`);
-		throw error instanceof Error ? error : new Error(message);
+		if (error instanceof Error) throw error;
+		throw Object.assign(new Error(message), { cause: error });
 	}
 }

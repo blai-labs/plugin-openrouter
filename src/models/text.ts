@@ -75,10 +75,10 @@ async function generateTextWithModel(
 	if (tools) {
 		generateParams.onStepFinish = async (stepResult) => {
 			if (stepResult.toolCalls && stepResult.toolCalls.length > 0) {
-				capturedToolCalls = stepResult.toolCalls;
+				capturedToolCalls = [...capturedToolCalls, ...stepResult.toolCalls];
 			}
 			if (stepResult.toolResults && stepResult.toolResults.length > 0) {
-				capturedToolResults = stepResult.toolResults;
+				capturedToolResults = [...capturedToolResults, ...stepResult.toolResults];
 			}
 		};
 	}
