@@ -83,7 +83,7 @@
         "type": "string",
         "description": "Overrides the default large language model used for text/object generation.",
         "required": false,
-        "default": "google/gemini-2.5-flash-preview-05-20",
+        "default": "google/gemini-2.5-flash",
         "sensitive": false
       },
       "SMALL_MODEL": {
@@ -97,7 +97,7 @@
         "type": "string",
         "description": "General fallback environment variable for the large model name when OPENROUTER_LARGE_MODEL is not set.",
         "required": false,
-        "default": "google/gemini-2.5-flash-preview-05-20",
+        "default": "google/gemini-2.5-flash",
         "sensitive": false
       },
       "IMAGE_MODEL": {

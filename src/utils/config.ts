@@ -66,9 +66,9 @@ export function getLargeModel(runtime: IAgentRuntime): string {
     getSetting(
       runtime,
       "LARGE_MODEL",
-      "google/gemini-2.5-flash-preview-05-20",
+      "google/gemini-2.5-flash",
     ) ??
-    "google/gemini-2.5-flash-preview-05-20"
+    "google/gemini-2.5-flash"
   );
 }
 
