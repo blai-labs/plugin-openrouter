@@ -1,36 +1,55 @@
 import type { LanguageModelUsage } from "ai";
 
 export interface OpenRouterConfig {
-  apiKey?: string;
-  baseURL?: string;
-  smallModel?: string;
-  largeModel?: string;
-  imageModel?: string;
+	apiKey?: string;
+	baseURL?: string;
+	smallModel?: string;
+	largeModel?: string;
+	imageModel?: string;
+}
+
+export interface ToolCall {
+	toolCallId: string;
+	toolName: string;
+	args: Record<string, unknown>;
+}
+
+export interface ToolResult {
+	toolCallId: string;
+	result: unknown;
+}
+
+export interface ToolResponse {
+	text: string;
+	toolCalls: ToolCall[];
+	toolResults: ToolResult[];
+	usage?: LanguageModelUsage;
+	finishReason?: string;
 }
 
 export interface GenerateTextResponse {
-  text: string;
-  steps?: Array<{
-    stepType: string;
-    text?: string;
-    toolCalls?: unknown[];
-    toolResults?: unknown[];
-    finishReason?: string;
-  }>;
-  response?: {
-    messages?: Array<{
-      role: string;
-      content?: Array<{
-        type: string;
-        [key: string]: unknown;
-      }>;
-    }>;
-  };
-  finishReason?: string;
-  usage?: LanguageModelUsage;
+	text: string;
+	steps?: Array<{
+		stepType: string;
+		text?: string;
+		toolCalls?: unknown[];
+		toolResults?: unknown[];
+		finishReason?: string;
+	}>;
+	response?: {
+		messages?: Array<{
+			role: string;
+			content?: Array<{
+				type: string;
+				[key: string]: unknown;
+			}>;
+		}>;
+	};
+	finishReason?: string;
+	usage?: LanguageModelUsage;
 }
 
 export interface ImageDescriptionResult {
-  title: string;
-  description: string;
+	title: string;
+	description: string;
 }
