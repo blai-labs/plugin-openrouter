@@ -137,7 +137,6 @@ function isLikelyBase64(key: string, value: string): boolean {
 	
 	// Basic format checks
 	if (value.length < 20) return false; // Too short to be meaningful base64
-	if (value.length % 4 !== 0) return false; // Invalid base64 length
 	if (!/^[A-Za-z0-9+/]*={0,2}$/.test(value)) return false; // Invalid chars
 	
 	return true;
