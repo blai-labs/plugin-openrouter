@@ -79,7 +79,7 @@ async function generateTextWithModel(
 			}
 			if (stepResult.toolResults && stepResult.toolResults.length > 0) {
 				// Decode base64 fields in tool results before capturing them
-				const decodedToolResults = stepResult.toolResults.map((result: any) => ({
+				const decodedToolResults = stepResult.toolResults.map((result: ToolResult) => ({
 					...result,
 					result: decodeBase64Fields(result.result),
 				}));
