@@ -126,3 +126,45 @@ export async function handleObjectGenerationError(
 		throw Object.assign(new Error(message), { cause: error });
 	}
 }
+
+/**
+ * Quick heuristic to detect if a field likely contains base64 data
+ */
+function isLikelyBase64(key: string, value: string): boolean {
+	// Check key name patterns (common base64 field names)
+	const base64KeyPattern = /^(data|content|body|payload|encoded|b64|base64)$/i;
+	if (!base64KeyPattern.test(key)) return false;
+	
+	// Basic format checks
+	if (value.length < 20) return false; // Too short to be meaningful base64
+	if (value.length % 4 !== 0) return false; // Invalid base64 length
+	if (!/^[A-Za-z0-9+/]*={0,2}$/.test(value)) return false; // Invalid chars
+	
+	return true;
+}
+
+/**
+ * Recursively decodes base64 fields in tool results
+ */
+export function decodeBase64Fields(obj: unknown): unknown {
+	if (!obj || typeof obj !== "object") return obj;
+	if (Array.isArray(obj)) return obj.map(item => decodeBase64Fields(item));
+	
+	const decoded: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(obj)) {
+		if (typeof value === "string" && isLikelyBase64(key, value)) {
+			try {
+				decoded[key] = Buffer.from(value, "base64").toString("utf8");
+				logger.debug(`[decodeBase64] Decoded field '${key}' (${value.length} chars)`);
+			} catch (error) {
+				logger.warn(`[decodeBase64] Failed to decode field '${key}': ${error}`);
+				decoded[key] = value; // Keep original if decode fails
+			}
+		} else if (value && typeof value === "object") {
+			decoded[key] = decodeBase64Fields(value);
+		} else {
+			decoded[key] = value;
+		}
+	}
+	return decoded;
+}

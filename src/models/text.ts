@@ -7,7 +7,7 @@ import { createOpenRouterProvider } from "../providers";
 import type { ToolCall, ToolResponse, ToolResult } from "../types";
 import { getSmallModel, getLargeModel } from "../utils/config";
 import { emitModelUsageEvent } from "../utils/events";
-import { handleEmptyToolResponse } from "../utils/helpers";
+import { handleEmptyToolResponse, decodeBase64Fields } from "../utils/helpers";
 
 /**
  * Common text generation logic for both small and large models
@@ -78,7 +78,12 @@ async function generateTextWithModel(
 				capturedToolCalls = [...capturedToolCalls, ...stepResult.toolCalls];
 			}
 			if (stepResult.toolResults && stepResult.toolResults.length > 0) {
-				capturedToolResults = [...capturedToolResults, ...stepResult.toolResults];
+				// Decode base64 fields in tool results before capturing them
+				const decodedToolResults = stepResult.toolResults.map((result: any) => ({
+					...result,
+					result: decodeBase64Fields(result.result),
+				}));
+				capturedToolResults = [...capturedToolResults, ...decodedToolResults];
 			}
 		};
 	}
