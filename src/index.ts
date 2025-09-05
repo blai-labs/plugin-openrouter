@@ -5,12 +5,13 @@ import {
 	type GenerateTextParams,
 	type ObjectGenerationParams,
 	type ImageDescriptionParams,
+	type ImageGenerationParams,
 } from "@elizaos/core";
 import type { Tool, ToolChoice } from "ai";
 import { initializeOpenRouter } from "./init";
 import { handleTextSmall, handleTextLarge } from "./models/text";
 import { handleObjectSmall, handleObjectLarge } from "./models/object";
-import { handleImageDescription } from "./models/image";
+import { handleImageDescription, handleImageGeneration } from "./models/image";
 
 /**
  * Defines the OpenRouter plugin with its name, description, and configuration options.
@@ -25,9 +26,11 @@ export const openrouterPlugin: Plugin = {
 		OPENROUTER_SMALL_MODEL: process.env.OPENROUTER_SMALL_MODEL,
 		OPENROUTER_LARGE_MODEL: process.env.OPENROUTER_LARGE_MODEL,
 		OPENROUTER_IMAGE_MODEL: process.env.OPENROUTER_IMAGE_MODEL,
+		OPENROUTER_IMAGE_GENERATION_MODEL: process.env.OPENROUTER_IMAGE_GENERATION_MODEL,
 		SMALL_MODEL: process.env.SMALL_MODEL,
 		LARGE_MODEL: process.env.LARGE_MODEL,
 		IMAGE_MODEL: process.env.IMAGE_MODEL,
+		IMAGE_GENERATION_MODEL: process.env.IMAGE_GENERATION_MODEL,
 	},
 	async init(config, runtime) {
 		// Note: We intentionally don't await here because ElizaOS expects
@@ -72,6 +75,12 @@ export const openrouterPlugin: Plugin = {
 			params: ImageDescriptionParams | string,
 		) => {
 			return handleImageDescription(runtime, params);
+		},
+		[ModelType.IMAGE]: async (
+			runtime: IAgentRuntime,
+			params: ImageGenerationParams,
+		) => {
+			return handleImageGeneration(runtime, params);
 		},
 	},
 };

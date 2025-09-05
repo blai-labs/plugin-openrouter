@@ -2,11 +2,14 @@ import {
 	logger,
 	type IAgentRuntime,
 	type ImageDescriptionParams,
+	type ImageGenerationParams,
 } from "@elizaos/core";
 import { generateText } from "ai";
+import type { OpenRouterImageResponse } from "../types";
 import { createOpenRouterProvider } from "../providers";
-import { getImageModel } from "../utils/config";
+import { getApiKey, getBaseURL, getImageGenerationModel, getImageModel } from "../utils/config";
 import { parseImageDescriptionResponse } from "../utils/helpers";
+import { deleteImage, saveBase64Image } from "../utils/image-storage";
 
 /**
  * IMAGE_DESCRIPTION model handler
@@ -61,5 +64,84 @@ export async function handleImageDescription(
 			title: "Failed to analyze image",
 			description: `Error: ${message}`,
 		};
+	}
+}
+
+/**
+ * IMAGE model handler for image generation
+ */
+export async function handleImageGeneration(
+	runtime: IAgentRuntime,
+	params: ImageGenerationParams,
+): Promise<{ url: string }[]> {
+	const modelName = getImageGenerationModel(runtime);
+	logger.log(`[OpenRouter] Using IMAGE_GENERATION model: ${modelName}`);
+	const apiKey = getApiKey(runtime);
+	
+	if (!apiKey) {
+		throw new Error("OpenRouter API key is missing");
+	}
+
+	try {
+		const baseUrl = getBaseURL(runtime);
+		const response = await fetch(`${baseUrl}/chat/completions`, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				model: modelName,
+				messages: [
+					{
+						role: 'user',
+						content: params.prompt,
+					},
+				],
+				modalities: ['image', 'text'],
+			}),
+		});
+
+		const result = await response.json() as OpenRouterImageResponse;
+		
+		const images: { url: string }[] = [];
+		const savedPaths: string[] = [];
+
+		// Extract images from the response
+		if (result.choices?.[0]?.message?.images) {
+			for (const [index, image] of result.choices[0].message.images.entries()) {
+				const base64Url = image.image_url.url;
+				
+				// Save image to disk
+				const filepath = await saveBase64Image(base64Url, index);
+				if (filepath) {
+					images.push({ url: filepath });
+					savedPaths.push(filepath);
+				} else if (!base64Url.startsWith('data:')) {
+					// If not base64, return as is (might be a URL)
+					images.push({ url: base64Url });
+				}
+			}
+		}
+
+		// Clean up images after a short delay (after they've been sent)
+		if (savedPaths.length > 0) {
+			setTimeout(() => {
+				savedPaths.forEach(path => {
+					deleteImage(path);
+				});
+			}, 30000); // Delete after 30 seconds
+		}
+
+		if (images.length === 0) {
+			throw new Error("No images generated in response");
+		}
+
+		logger.log(`[OpenRouter] Generated ${images.length} image(s)`);
+		return images;
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		logger.error(`[OpenRouter] Error generating image: ${message}`);
+		return [];
 	}
 }
