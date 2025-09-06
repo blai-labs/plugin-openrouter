@@ -12,6 +12,7 @@ import { initializeOpenRouter } from "./init";
 import { handleTextSmall, handleTextLarge } from "./models/text";
 import { handleObjectSmall, handleObjectLarge } from "./models/object";
 import { handleImageDescription, handleImageGeneration } from "./models/image";
+import { createImageRoutes } from "./routes/images";
 
 /**
  * Defines the OpenRouter plugin with its name, description, and configuration options.
@@ -20,6 +21,7 @@ import { handleImageDescription, handleImageGeneration } from "./models/image";
 export const openrouterPlugin: Plugin = {
 	name: "openrouter",
 	description: "OpenRouter plugin",
+	routes: createImageRoutes(),
 	config: {
 		OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
 		OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,

@@ -2,11 +2,10 @@ import { existsSync, unlinkSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { logger } from "@elizaos/core";
-
-const IMAGES_DIR = join(process.cwd(), "generated-images");
+import { IMAGES_DIR, IMAGES_URL_PREFIX } from "./constants";
 
 /**
- * Save base64 image to disk and return the file path
+ * Save base64 image to disk and return the URL path
  */
 export async function saveBase64Image(base64Url: string, index: number = 0): Promise<string | null> {
 	// Extract base64 data and extension
@@ -33,7 +32,8 @@ export async function saveBase64Image(base64Url: string, index: number = 0): Pro
 	await writeFile(filepath, buffer);
 
 	logger.info(`[OpenRouter] Saved generated image to ${filepath}`);
-	return filepath;
+
+	return `${IMAGES_URL_PREFIX}/${filename}`;
 }
 
 /**
