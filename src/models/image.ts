@@ -7,7 +7,7 @@ import {
 import { generateText } from "ai";
 import type { OpenRouterImageResponse } from "../types";
 import { createOpenRouterProvider } from "../providers";
-import { getApiKey, getBaseURL, getImageGenerationModel, getImageModel } from "../utils/config";
+import { getApiKey, getBaseURL, getImageGenerationModel, getImageModel, shouldAutoCleanupImages } from "../utils/config";
 import { parseImageDescriptionResponse } from "../utils/helpers";
 import { deleteImage, saveBase64Image } from "../utils/image-storage";
 
@@ -131,8 +131,8 @@ export async function handleImageGeneration(
 			}
 		}
 
-		// Clean up images after a short delay (after they've been sent)
-		if (savedPaths.length > 0) {
+		// Clean up images after a short delay if auto-cleanup is enabled
+		if (savedPaths.length > 0 && shouldAutoCleanupImages(runtime)) {
 			setTimeout(() => {
 				savedPaths.forEach(path => {
 					deleteImage(path);

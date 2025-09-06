@@ -99,3 +99,14 @@ export function getImageGenerationModel(runtime: IAgentRuntime): string {
 		"google/gemini-2.5-flash-image-preview"
 	);
 }
+
+/**
+ * Helper function to check if auto cleanup is enabled for generated images
+ *
+ * @param runtime The runtime context
+ * @returns Whether to auto-cleanup generated images (default: false)
+ */
+export function shouldAutoCleanupImages(runtime: IAgentRuntime): boolean {
+	const setting = getSetting(runtime, "OPENROUTER_AUTO_CLEANUP_IMAGES", "false");
+	return setting?.toLowerCase() === "true";
+}
