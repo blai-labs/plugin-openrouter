@@ -107,6 +107,20 @@
 				"required": false,
 				"default": "x-ai/grok-2-vision-1212",
 				"sensitive": false
+			},
+			"OPENROUTER_IMAGE_GENERATION_MODEL": {
+				"type": "string",
+				"description": "Overrides the default image generation model used by the OpenRouter plugin.",
+				"required": false,
+				"default": "dall-e-3",
+				"sensitive": false
+			},
+			"IMAGE_GENERATION_MODEL": {
+				"type": "string",
+				"description": "General fallback environment variable for the image generation model name when OPENROUTER_IMAGE_GENERATION_MODEL is not set.",
+				"required": false,
+				"default": "dall-e-3",
+				"sensitive": false
 			}
 		}
 	}

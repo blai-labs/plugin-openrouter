@@ -1,5 +1,4 @@
 import { type Route, logger } from "@elizaos/core";
-import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Request, Response } from "express";
 import { IMAGES_DIR, IMAGES_URL_PREFIX } from "../utils/constants";
@@ -18,20 +17,20 @@ export function createImageRoutes(): Route[] {
 					const pathParts = req.path.split('/');
 					const filename = pathParts[pathParts.length - 1];
 					
-					// Security: prevent directory traversal
-					if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
-						res.status(400).json({ error: "Invalid filename" });
+					// Validate filename
+					if (!filename || filename.trim() === '') {
+						res.status(400).json({ error: "Filename is required" });
+						return;
+					}
+					
+					// Security: strict filename validation (alphanumeric, dash, underscore, dot only)
+					const validFilenameRegex = /^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|gif|webp)$/;
+					if (!validFilenameRegex.test(filename)) {
+						res.status(400).json({ error: "Invalid filename format" });
 						return;
 					}
 					
 					const filepath = join(IMAGES_DIR, filename);
-					
-					// Check if file exists
-					if (!existsSync(filepath)) {
-						logger.debug(`[OpenRouter] Image not found: ${filepath}`);
-						res.status(404).json({ error: "Image not found" });
-						return;
-					}
 					
 					// Determine content type based on extension
 					const ext = filename.split(".").pop()?.toLowerCase();
@@ -44,13 +43,27 @@ export function createImageRoutes(): Route[] {
 					};
 					const contentType = contentTypes[ext || ""] || "image/png";
 					
-					// Read and send the image
-					const image = readFileSync(filepath);
-					res.setHeader("Content-Type", contentType);
-					res.setHeader("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
-					res.send(image);
+					// Use sendFile for async operation with built-in security
+					const options = {
+						headers: {
+							"Content-Type": contentType,
+							"Cache-Control": "public, max-age=3600", // Cache for 1 hour
+						},
+					};
 					
-					logger.debug(`[OpenRouter] Served image: ${filename}`);
+					res.sendFile(filepath, options, (err) => {
+						if (err) {
+							if (err.message?.includes("ENOENT")) {
+								logger.debug(`[OpenRouter] Image not found: ${filepath}`);
+								res.status(404).json({ error: "Image not found" });
+							} else {
+								logger.error("[OpenRouter] Error serving image:", String(err));
+								res.status(500).json({ error: "Failed to serve image" });
+							}
+						} else {
+							logger.debug(`[OpenRouter] Served image: ${filename}`);
+						}
+					});
 				} catch (error) {
 					logger.error("[OpenRouter] Error serving image:", String(error));
 					res.status(500).json({ error: "Internal server error" });

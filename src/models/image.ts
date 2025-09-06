@@ -127,6 +127,9 @@ export async function handleImageGeneration(
 				} else if (!base64Url.startsWith('data:')) {
 					// If not base64, return as is (might be a URL)
 					images.push({ url: base64Url });
+				} else {
+					// Failed to save base64 image
+					logger.warn(`[OpenRouter] Failed to save image ${index + 1}, skipping`);
 				}
 			}
 		}
