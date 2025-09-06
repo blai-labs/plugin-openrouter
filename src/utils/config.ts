@@ -61,15 +61,15 @@ export function getSmallModel(runtime: IAgentRuntime): string {
  * @returns The configured large model name
  */
 export function getLargeModel(runtime: IAgentRuntime): string {
-	return (
-		getSetting(runtime, "OPENROUTER_LARGE_MODEL") ??
-		getSetting(
-			runtime,
-			"LARGE_MODEL",
-			"openai/gpt-4.1-nano",
-		) ??
-		"openai/gpt-4.1-nano"
-	);
+  return (
+    getSetting(runtime, "OPENROUTER_LARGE_MODEL") ??
+    getSetting(
+      runtime,
+      "LARGE_MODEL",
+      "google/gemini-2.5-flash",
+    ) ??
+    "google/gemini-2.5-flash"
+  );
 }
 
 /**
