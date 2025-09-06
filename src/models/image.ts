@@ -77,12 +77,12 @@ export async function handleImageGeneration(
 	const modelName = getImageGenerationModel(runtime);
 	logger.log(`[OpenRouter] Using IMAGE_GENERATION model: ${modelName}`);
 	const apiKey = getApiKey(runtime);
-	
-	if (!apiKey) {
-		throw new Error("OpenRouter API key is missing");
-	}
 
 	try {
+		if (!apiKey) {
+			logger.error("[OpenRouter] OpenRouter API key is missing");
+			return [];
+		}
 		const baseUrl = getBaseURL(runtime);
 		const response = await fetch(`${baseUrl}/chat/completions`, {
 			method: 'POST',
@@ -100,7 +100,14 @@ export async function handleImageGeneration(
 				],
 				modalities: ['image', 'text'],
 			}),
+			// 60 seconds timeout
+			signal: AbortSignal.timeout ? AbortSignal.timeout(60000) : undefined,
 		});
+
+		if (!response.ok) {
+			const errorText = await response.text().catch(() => "");
+			throw new Error(`HTTP ${response.status} ${response.statusText} ${errorText}`);
+		}
 
 		const result = await response.json() as OpenRouterImageResponse;
 		

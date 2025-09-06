@@ -57,8 +57,8 @@ IMAGE_GENERATION_MODEL=google/gemini-2.5-flash-image-preview
 - `OPENROUTER_LARGE_MODEL`: Specific model to use for `TEXT_LARGE` and `OBJECT_LARGE`. Overrides `LARGE_MODEL` if set.
 - `OPENROUTER_IMAGE_MODEL`: Specific model to use for `IMAGE_DESCRIPTION`. Overrides `IMAGE_MODEL` if set.
 - `OPENROUTER_IMAGE_GENERATION_MODEL`: Specific model to use for `IMAGE` generation. Overrides `IMAGE_GENERATION_MODEL` if set.
-- `SMALL_MODEL`: Fallback model for small tasks (default: "google/gemini-flash"). Used if `OPENROUTER_SMALL_MODEL` is not set.
-- `LARGE_MODEL`: Fallback model for large tasks (default: "google/gemini-pro"). Used if `OPENROUTER_LARGE_MODEL` is not set.
+- `SMALL_MODEL`: Fallback model for small tasks (default: "google/gemini-2.0-flash-001"). Used if `OPENROUTER_SMALL_MODEL` is not set.
+- `LARGE_MODEL`: Fallback model for large tasks (default: "openai/gpt-4.1-nano"). Used if `OPENROUTER_LARGE_MODEL` is not set.
 - `IMAGE_MODEL`: Fallback model for image analysis (default: "x-ai/grok-2-vision-1212"). Used if `OPENROUTER_IMAGE_MODEL` is not set.
 - `IMAGE_GENERATION_MODEL`: Fallback model for image generation (default: "google/gemini-2.5-flash-image-preview"). Used if `OPENROUTER_IMAGE_GENERATION_MODEL` is not set.
 
