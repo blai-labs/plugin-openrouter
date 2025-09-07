@@ -111,7 +111,7 @@ export async function handleImageGeneration(
 
 		const result = await response.json() as OpenRouterImageResponse;
 		
-		const images: { url: string }[] = [];
+		const images: { url: string; filepath?: string }[] = [];
 		const savedPaths: string[] = [];
 
 		// Extract images from the response
@@ -120,9 +120,13 @@ export async function handleImageGeneration(
 				const base64Url = image.image_url.url;
 				
 				// Save image to disk
-				const filepath = await saveBase64Image(base64Url, index);
+				const filepath = await saveBase64Image(base64Url, runtime.agentId, index);
 				if (filepath) {
-					images.push({ url: filepath });
+					// Return the actual file path for Discord/Telegram compatibility
+					logger.log(`[OpenRouter] Returning image with filepath: ${filepath}`);
+					images.push({ 
+						url: filepath  // Use actual file path
+					});
 					savedPaths.push(filepath);
 				} else if (!base64Url.startsWith('data:')) {
 					// If not base64, return as is (might be a URL)

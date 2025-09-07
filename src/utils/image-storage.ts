@@ -1,13 +1,12 @@
 import { existsSync, unlinkSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { logger } from "@elizaos/core";
-import { IMAGES_DIR, IMAGES_URL_PREFIX } from "./constants";
+import { logger, getGeneratedDir } from "@elizaos/core";
 
 /**
- * Save base64 image to disk and return the URL path
+ * Save base64 image to disk and return the file path
  */
-export async function saveBase64Image(base64Url: string, index: number = 0): Promise<string | null> {
+export async function saveBase64Image(base64Url: string, agentId: string, index: number = 0): Promise<string | null> {
 	// Extract base64 data and extension
 	const matches = base64Url.match(/^data:image\/(\w+);base64,(.+)$/);
 	if (!matches) {
@@ -17,15 +16,18 @@ export async function saveBase64Image(base64Url: string, index: number = 0): Pro
 	const extension = matches[1];
 	const base64Data = matches[2];
 
-	// Create images directory if it doesn't exist
-	if (!existsSync(IMAGES_DIR)) {
-		await mkdir(IMAGES_DIR, { recursive: true });
+	// Use ElizaOS convention: .eliza/data/generated/{agentId}/
+	const baseDir = join(getGeneratedDir(), agentId);
+	
+	// Create directory if it doesn't exist
+	if (!existsSync(baseDir)) {
+		await mkdir(baseDir, { recursive: true });
 	}
 
 	// Generate filename with timestamp
 	const timestamp = Date.now();
 	const filename = `image_${timestamp}_${index}.${extension}`;
-	const filepath = join(IMAGES_DIR, filename);
+	const filepath = join(baseDir, filename);
 
 	// Save image to disk
 	const buffer = Buffer.from(base64Data, "base64");
@@ -33,7 +35,8 @@ export async function saveBase64Image(base64Url: string, index: number = 0): Pro
 
 	logger.info(`[OpenRouter] Saved generated image to ${filepath}`);
 
-	return `${IMAGES_URL_PREFIX}/${filename}`;
+	// Return only the file path for Discord/Telegram to read
+	return filepath;
 }
 
 /**
