@@ -36,14 +36,14 @@ export function logResponseStructure(
 	modelType: string,
 	response: GenerateTextResponse,
 ) {
-	logger.debug(`[${modelType}] Response structure:`, {
+	logger.debug(`[${modelType}] Response structure: ${JSON.stringify({
 		hasText: !!response.text,
 		textLength: response.text?.length || 0,
 		hasSteps: !!response.steps,
 		stepsCount: response.steps?.length || 0,
 		finishReason: response.finishReason,
 		usage: response.usage,
-	});
+	}, null, 2)}`);
 }
 
 /**
@@ -125,4 +125,48 @@ export async function handleObjectGenerationError(
 		if (error instanceof Error) throw error;
 		throw Object.assign(new Error(message), { cause: error });
 	}
+}
+
+/**
+ * Quick heuristic to detect if a field likely contains base64 data
+ */
+function isLikelyBase64(key: string, value: string): boolean {
+	// Check key name patterns (expanded base64 field names)
+	const base64KeyPattern = /^(data|content|body|payload|encoded|b64|base64|document)$/i;
+	if (!base64KeyPattern.test(key)) return false;
+	
+	// Basic format checks
+	if (value.length < 20 || value.length > 1024 * 1024) return false; // Size limits
+	if (value.length % 4 !== 0) return false; // Invalid base64 length
+	if (!/^[A-Za-z0-9+/]*={0,2}$/.test(value)) return false; // Invalid chars
+	
+	return true;
+}
+
+/**
+ * Recursively decodes base64 fields in tool results
+ */
+export function decodeBase64Fields(obj: unknown, depth = 0): unknown {
+	// Simple depth protection
+	if (depth > 5) return obj;
+	if (!obj || typeof obj !== "object") return obj;
+	if (Array.isArray(obj)) return obj.map(item => decodeBase64Fields(item, depth + 1));
+	
+	const decoded: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(obj)) {
+		if (typeof value === "string" && isLikelyBase64(key, value)) {
+			try {
+				decoded[key] = Buffer.from(value, "base64").toString("utf8");
+				logger.debug(`[decodeBase64] Decoded field '${key}' (${value.length} chars)`);
+			} catch (error) {
+				logger.warn(`[decodeBase64] Failed to decode field '${key}': ${error}`);
+				decoded[key] = value; // Keep original if decode fails
+			}
+		} else if (value && typeof value === "object") {
+			decoded[key] = decodeBase64Fields(value, depth + 1);
+		} else {
+			decoded[key] = value;
+		}
+	}
+	return decoded;
 }
