@@ -7,14 +7,27 @@ import { logger, getGeneratedDir } from "@elizaos/core";
  * Save base64 image to disk and return the file path
  */
 export async function saveBase64Image(base64Url: string, agentId: string, index: number = 0): Promise<string | null> {
-	// Extract base64 data and extension
-	const matches = base64Url.match(/^data:image\/(\w+);base64,(.+)$/);
-	if (!matches) {
-		return null;
-	}
-
-	const extension = matches[1];
-	const base64Data = matches[2];
+	// Extract base64 data and extension with MIME type validation
+	const m = base64Url.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
+	if (!m) return null;
+	
+	const mime = m[1];
+	const base64Data = m[2];
+	
+	// Whitelist of allowed MIME types mapped to extensions
+	const extMap: Record<string, string> = {
+		"image/png": "png",
+		"image/jpeg": "jpg",
+		"image/jpg": "jpg",
+		"image/webp": "webp",
+		"image/gif": "gif",
+		"image/bmp": "bmp",
+		"image/tiff": "tiff",
+		"image/svg+xml": "svg",
+	};
+	
+	const extension = extMap[mime];
+	if (!extension) return null;
 
 	// Use ElizaOS convention: .eliza/data/generated/{agentId}/
 	const baseDir = join(getGeneratedDir(), agentId);
