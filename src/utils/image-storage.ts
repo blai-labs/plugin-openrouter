@@ -22,8 +22,7 @@ export async function saveBase64Image(base64Url: string, agentId: string, index:
 		"image/webp": "webp",
 		"image/gif": "gif",
 		"image/bmp": "bmp",
-		"image/tiff": "tiff",
-		"image/svg+xml": "svg",
+		"image/tiff": "tiff"
 	};
 	
 	const extension = extMap[mime];
