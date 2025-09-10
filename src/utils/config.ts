@@ -85,3 +85,28 @@ export function getImageModel(runtime: IAgentRuntime): string {
 		"x-ai/grok-2-vision-1212"
 	);
 }
+
+/**
+ * Helper function to get the image generation model name with fallbacks
+ *
+ * @param runtime The runtime context
+ * @returns The configured image generation model name
+ */
+export function getImageGenerationModel(runtime: IAgentRuntime): string {
+	return (
+		getSetting(runtime, "OPENROUTER_IMAGE_GENERATION_MODEL") ??
+		getSetting(runtime, "IMAGE_GENERATION_MODEL", "google/gemini-2.5-flash-image-preview") ??
+		"google/gemini-2.5-flash-image-preview"
+	);
+}
+
+/**
+ * Helper function to check if auto cleanup is enabled for generated images
+ *
+ * @param runtime The runtime context
+ * @returns Whether to auto-cleanup generated images (default: false)
+ */
+export function shouldAutoCleanupImages(runtime: IAgentRuntime): boolean {
+	const setting = getSetting(runtime, "OPENROUTER_AUTO_CLEANUP_IMAGES", "false");
+	return setting?.toLowerCase() === "true";
+}

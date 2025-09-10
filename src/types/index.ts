@@ -53,3 +53,15 @@ export interface ImageDescriptionResult {
 	title: string;
 	description: string;
 }
+
+export interface OpenRouterImageResponse {
+	choices?: Array<{
+		message?: {
+			images?: Array<{
+				image_url: {
+					url: string;
+				};
+			}>;
+		};
+	}>;
+}

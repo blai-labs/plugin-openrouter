@@ -23,10 +23,12 @@ The plugin requires the OpenRouter API key and can be configured via environment
   "OPENROUTER_SMALL_MODEL": "google/gemini-flash", // Optional: Overrides default small model
   "OPENROUTER_LARGE_MODEL": "google/gemini-pro", // Optional: Overrides default large model
   "OPENROUTER_IMAGE_MODEL": "x-ai/grok-2-vision-1212", // Optional: Overrides default image model
+    "OPENROUTER_IMAGE_GENERATION_MODEL": "google/gemini-2.5-flash-image-preview", // Optional: Overrides default image generation model
   // Fallbacks if specific OPENROUTER models are not set
   "SMALL_MODEL": "google/gemini-flash",
   "LARGE_MODEL": "google/gemini-pro",
-  "IMAGE_MODEL": "x-ai/grok-2-vision-1212"
+  "IMAGE_MODEL": "x-ai/grok-2-vision-1212",
+  "IMAGE_GENERATION_MODEL": "google/gemini-2.5-flash-image-preview"
 }
 ```
 
@@ -39,10 +41,12 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 OPENROUTER_SMALL_MODEL=google/gemini-flash
 OPENROUTER_LARGE_MODEL=google/gemini-pro
 OPENROUTER_IMAGE_MODEL=x-ai/grok-2-vision-1212
+OPENROUTER_IMAGE_GENERATION_MODEL=google/gemini-2.5-flash-image-preview
 # Fallbacks if specific OPENROUTER models are not set
 SMALL_MODEL=google/gemini-flash
 LARGE_MODEL=google/gemini-pro
 IMAGE_MODEL=x-ai/grok-2-vision-1212
+IMAGE_GENERATION_MODEL=google/gemini-2.5-flash-image-preview
 ```
 
 ### Configuration Options
@@ -52,9 +56,12 @@ IMAGE_MODEL=x-ai/grok-2-vision-1212
 - `OPENROUTER_SMALL_MODEL`: Specific model to use for `TEXT_SMALL` and `OBJECT_SMALL`. Overrides `SMALL_MODEL` if set.
 - `OPENROUTER_LARGE_MODEL`: Specific model to use for `TEXT_LARGE` and `OBJECT_LARGE`. Overrides `LARGE_MODEL` if set.
 - `OPENROUTER_IMAGE_MODEL`: Specific model to use for `IMAGE_DESCRIPTION`. Overrides `IMAGE_MODEL` if set.
-- `SMALL_MODEL`: Fallback model for small tasks (default: "google/gemini-flash"). Used if `OPENROUTER_SMALL_MODEL` is not set.
-- `LARGE_MODEL`: Fallback model for large tasks (default: "google/gemini-pro"). Used if `OPENROUTER_LARGE_MODEL` is not set.
+- `OPENROUTER_IMAGE_GENERATION_MODEL`: Specific model to use for `IMAGE` generation. Overrides `IMAGE_GENERATION_MODEL` if set.
+- `OPENROUTER_AUTO_CLEANUP_IMAGES`: Whether to automatically delete generated images after 30 seconds (default: "false"). Set to "true" to enable auto-cleanup.
+- `SMALL_MODEL`: Fallback model for small tasks (default: "google/gemini-2.0-flash-001"). Used if `OPENROUTER_SMALL_MODEL` is not set.
+- `LARGE_MODEL`: Fallback model for large tasks (default: "openai/gpt-4.1-nano"). Used if `OPENROUTER_LARGE_MODEL` is not set.
 - `IMAGE_MODEL`: Fallback model for image analysis (default: "x-ai/grok-2-vision-1212"). Used if `OPENROUTER_IMAGE_MODEL` is not set.
+- `IMAGE_GENERATION_MODEL`: Fallback model for image generation (default: "google/gemini-2.5-flash-image-preview"). Used if `OPENROUTER_IMAGE_GENERATION_MODEL` is not set.
 
 ## Provided Models
 
@@ -65,5 +72,6 @@ The plugin currently provides these model types:
 - `OBJECT_SMALL`: Generates structured JSON objects based on a prompt, using the configured small model.
 - `OBJECT_LARGE`: Generates structured JSON objects based on a prompt, using the configured large model.
 - `IMAGE_DESCRIPTION`: Analyzes images and provides descriptive text and titles, using the configured image model.
+- `IMAGE`: Generates images from text prompts using the configured image generation model (e.g., Gemini 2.5 Flash Image Preview).
 
-_Note: Features like Image Generation, Audio Transcription, and Embeddings are not currently implemented in this specific OpenRouter plugin._
+_Note: Features like Audio Transcription and Embeddings are not currently implemented in this specific OpenRouter plugin._
