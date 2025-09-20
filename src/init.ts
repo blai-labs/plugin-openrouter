@@ -10,6 +10,12 @@ export function initializeOpenRouter(_config: any, runtime: IAgentRuntime) {
   // do check in the background
   (async () => {
     try {
+      const isBrowser =
+        typeof globalThis !== "undefined" && (globalThis as any).document;
+      // In browser, skip validation entirely to avoid exposing secrets
+      if (isBrowser) {
+        return;
+      }
       if (!getApiKey(runtime)) {
         logger.warn(
           "OPENROUTER_API_KEY is not set in environment - OpenRouter functionality will be limited",

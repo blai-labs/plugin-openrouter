@@ -24,7 +24,9 @@ async function generateTextWithModel(
   const temperature = params.temperature ?? 0.7;
   const frequencyPenalty = params.frequencyPenalty ?? 0.7;
   const presencePenalty = params.presencePenalty ?? 0.7;
-  const maxResponseLength = params.maxTokens ?? 8192;
+  // Support both v4 (maxTokens) and v5 (maxOutputTokens). Prefer v5 when present.
+  const resolvedMaxOutput =
+    (params as any).maxOutputTokens ?? params.maxTokens ?? undefined;
 
   const openrouter = createOpenRouterProvider(runtime);
   const modelName =
@@ -43,11 +45,14 @@ async function generateTextWithModel(
     prompt: prompt,
     system: runtime.character.system ?? undefined,
     temperature: temperature,
-    maxOutputTokens: maxResponseLength,
     frequencyPenalty: frequencyPenalty,
     presencePenalty: presencePenalty,
     stopSequences: stopSequences,
   };
+
+  if (resolvedMaxOutput != null) {
+    (generateParams as any).maxOutputTokens = resolvedMaxOutput;
+  }
 
   // Add tools if provided
   if (tools) {

@@ -36,6 +36,16 @@ export function logResponseStructure(
   modelType: string,
   response: GenerateTextResponse,
 ) {
+  // Only log safe, non-sensitive usage fields (avoid raw request bodies)
+  const u = (response as any)?.usage;
+  const safeUsage =
+    u && typeof u === "object"
+      ? {
+          inputTokens: u.inputTokens,
+          outputTokens: u.outputTokens,
+          totalTokens: u.totalTokens,
+        }
+      : undefined;
   logger.debug(
     `[${modelType}] Response structure: ${JSON.stringify(
       {
@@ -44,7 +54,7 @@ export function logResponseStructure(
         hasSteps: !!response.steps,
         stepsCount: response.steps?.length || 0,
         finishReason: response.finishReason,
-        usage: response.usage,
+        usage: safeUsage,
       },
       null,
       2,
