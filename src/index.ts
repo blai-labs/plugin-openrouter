@@ -47,7 +47,7 @@ export const openrouterPlugin: Plugin = {
       params: GenerateTextParams & {
         tools?: Record<string, Tool>;
         toolChoice?: ToolChoice<Record<string, Tool>>;
-      }
+      },
     ) => {
       return handleTextSmall(runtime, params);
     },
@@ -56,31 +56,31 @@ export const openrouterPlugin: Plugin = {
       params: GenerateTextParams & {
         tools?: Record<string, Tool>;
         toolChoice?: ToolChoice<Record<string, Tool>>;
-      }
+      },
     ) => {
       return handleTextLarge(runtime, params);
     },
     [ModelType.OBJECT_SMALL]: async (
       runtime: IAgentRuntime,
-      params: ObjectGenerationParams
+      params: ObjectGenerationParams,
     ) => {
       return handleObjectSmall(runtime, params);
     },
     [ModelType.OBJECT_LARGE]: async (
       runtime: IAgentRuntime,
-      params: ObjectGenerationParams
+      params: ObjectGenerationParams,
     ) => {
       return handleObjectLarge(runtime, params);
     },
     [ModelType.IMAGE_DESCRIPTION]: async (
       runtime: IAgentRuntime,
-      params: ImageDescriptionParams | string
+      params: ImageDescriptionParams | string,
     ) => {
       return handleImageDescription(runtime, params);
     },
     [ModelType.IMAGE]: async (
       runtime: IAgentRuntime,
-      params: ImageGenerationParams
+      params: ImageGenerationParams,
     ) => {
       return handleImageGeneration(runtime, params);
     },

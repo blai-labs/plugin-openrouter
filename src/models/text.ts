@@ -66,7 +66,10 @@ async function generateTextWithModel(
   if (tools) {
     (generateParams as any).onStepFinish = async (stepResult: any) => {
       if (stepResult.toolCalls && stepResult.toolCalls.length > 0) {
-        capturedToolCalls = [...capturedToolCalls, ...stepResult.toolCalls as any];
+        capturedToolCalls = [
+          ...capturedToolCalls,
+          ...(stepResult.toolCalls as any),
+        ];
       }
       if (stepResult.toolResults && stepResult.toolResults.length > 0) {
         const decodedToolResults = (stepResult.toolResults as any[]).map(
