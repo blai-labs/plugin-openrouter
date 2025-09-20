@@ -24,9 +24,9 @@ async function generateTextWithModel(
   const temperature = params.temperature ?? 0.7;
   const frequencyPenalty = params.frequencyPenalty ?? 0.7;
   const presencePenalty = params.presencePenalty ?? 0.7;
-  // Support both v4 (maxTokens) and v5 (maxOutputTokens). Prefer v5 when present.
+  // AI SDK v5: prefer maxOutputTokens; keep legacy maxTokens as fallback; default 8192
   const resolvedMaxOutput =
-    (params as any).maxOutputTokens ?? params.maxTokens ?? undefined;
+    (params as any).maxOutputTokens ?? (params as any).maxTokens ?? 8192;
 
   const openrouter = createOpenRouterProvider(runtime);
   const modelName =
@@ -50,9 +50,7 @@ async function generateTextWithModel(
     stopSequences: stopSequences,
   };
 
-  if (resolvedMaxOutput != null) {
-    (generateParams as any).maxOutputTokens = resolvedMaxOutput;
-  }
+  (generateParams as any).maxOutputTokens = resolvedMaxOutput;
 
   // Add tools if provided
   if (tools) {

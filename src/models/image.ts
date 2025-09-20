@@ -28,7 +28,7 @@ export async function handleImageDescription(
   let promptText: string | undefined;
   const modelName = getImageModel(runtime);
   logger.log(`[OpenRouter] Using IMAGE_DESCRIPTION model: ${modelName}`);
-  const maxTokens = 300;
+  const maxOutputTokens = 300;
 
   if (typeof params === "string") {
     imageUrl = params;
@@ -59,7 +59,7 @@ export async function handleImageDescription(
     const { text: responseText } = await generateText({
       model: model,
       messages: messages,
-      maxOutputTokens: maxTokens,
+      maxOutputTokens: maxOutputTokens,
     });
 
     return parseImageDescriptionResponse(responseText);
