@@ -8,11 +8,11 @@ import type { IAgentRuntime } from "@elizaos/core";
  * @returns The resolved setting value, or {@link defaultValue} if not found.
  */
 export function getSetting(
-	runtime: IAgentRuntime,
-	key: string,
-	defaultValue?: string,
+  runtime: IAgentRuntime,
+  key: string,
+  defaultValue?: string,
 ): string | undefined {
-	return runtime.getSetting(key) ?? process.env[key] ?? defaultValue;
+  return runtime.getSetting(key) ?? process.env[key] ?? defaultValue;
 }
 
 /**
@@ -21,13 +21,21 @@ export function getSetting(
  * @returns The resolved base URL for OpenRouter API requests.
  */
 export function getBaseURL(runtime: IAgentRuntime): string {
-	return (
-		getSetting(
-			runtime,
-			"OPENROUTER_BASE_URL",
-			"https://openrouter.ai/api/v1",
-		) || "https://openrouter.ai/api/v1"
-	);
+  const browserURL = getSetting(runtime, "OPENROUTER_BROWSER_BASE_URL");
+  if (
+    typeof globalThis !== "undefined" &&
+    (globalThis as any).document &&
+    browserURL
+  ) {
+    return browserURL;
+  }
+  return (
+    getSetting(
+      runtime,
+      "OPENROUTER_BASE_URL",
+      "https://openrouter.ai/api/v1",
+    ) || "https://openrouter.ai/api/v1"
+  );
 }
 
 /**
@@ -37,7 +45,7 @@ export function getBaseURL(runtime: IAgentRuntime): string {
  * @returns The configured API key
  */
 export function getApiKey(runtime: IAgentRuntime): string | undefined {
-	return getSetting(runtime, "OPENROUTER_API_KEY");
+  return getSetting(runtime, "OPENROUTER_API_KEY");
 }
 
 /**
@@ -47,11 +55,11 @@ export function getApiKey(runtime: IAgentRuntime): string | undefined {
  * @returns The configured small model name
  */
 export function getSmallModel(runtime: IAgentRuntime): string {
-	return (
-		getSetting(runtime, "OPENROUTER_SMALL_MODEL") ??
-		getSetting(runtime, "SMALL_MODEL", "google/gemini-2.0-flash-001") ??
-		"google/gemini-2.0-flash-001"
-	);
+  return (
+    getSetting(runtime, "OPENROUTER_SMALL_MODEL") ??
+    getSetting(runtime, "SMALL_MODEL", "google/gemini-2.0-flash-001") ??
+    "google/gemini-2.0-flash-001"
+  );
 }
 
 /**
@@ -63,11 +71,7 @@ export function getSmallModel(runtime: IAgentRuntime): string {
 export function getLargeModel(runtime: IAgentRuntime): string {
   return (
     getSetting(runtime, "OPENROUTER_LARGE_MODEL") ??
-    getSetting(
-      runtime,
-      "LARGE_MODEL",
-      "google/gemini-2.5-flash",
-    ) ??
+    getSetting(runtime, "LARGE_MODEL", "google/gemini-2.5-flash") ??
     "google/gemini-2.5-flash"
   );
 }
@@ -79,11 +83,11 @@ export function getLargeModel(runtime: IAgentRuntime): string {
  * @returns The configured image model name
  */
 export function getImageModel(runtime: IAgentRuntime): string {
-	return (
-		getSetting(runtime, "OPENROUTER_IMAGE_MODEL") ??
-		getSetting(runtime, "IMAGE_MODEL", "x-ai/grok-2-vision-1212") ??
-		"x-ai/grok-2-vision-1212"
-	);
+  return (
+    getSetting(runtime, "OPENROUTER_IMAGE_MODEL") ??
+    getSetting(runtime, "IMAGE_MODEL", "x-ai/grok-2-vision-1212") ??
+    "x-ai/grok-2-vision-1212"
+  );
 }
 
 /**
@@ -93,11 +97,15 @@ export function getImageModel(runtime: IAgentRuntime): string {
  * @returns The configured image generation model name
  */
 export function getImageGenerationModel(runtime: IAgentRuntime): string {
-	return (
-		getSetting(runtime, "OPENROUTER_IMAGE_GENERATION_MODEL") ??
-		getSetting(runtime, "IMAGE_GENERATION_MODEL", "google/gemini-2.5-flash-image-preview") ??
-		"google/gemini-2.5-flash-image-preview"
-	);
+  return (
+    getSetting(runtime, "OPENROUTER_IMAGE_GENERATION_MODEL") ??
+    getSetting(
+      runtime,
+      "IMAGE_GENERATION_MODEL",
+      "google/gemini-2.5-flash-image-preview",
+    ) ??
+    "google/gemini-2.5-flash-image-preview"
+  );
 }
 
 /**
@@ -107,6 +115,10 @@ export function getImageGenerationModel(runtime: IAgentRuntime): string {
  * @returns Whether to auto-cleanup generated images (default: false)
  */
 export function shouldAutoCleanupImages(runtime: IAgentRuntime): boolean {
-	const setting = getSetting(runtime, "OPENROUTER_AUTO_CLEANUP_IMAGES", "false");
-	return setting?.toLowerCase() === "true";
+  const setting = getSetting(
+    runtime,
+    "OPENROUTER_AUTO_CLEANUP_IMAGES",
+    "false",
+  );
+  return setting?.toLowerCase() === "true";
 }
