@@ -2,8 +2,8 @@
   "name": "@elizaos/plugin-openrouter",
   "version": "1.5.10",
   "type": "module",
-  "main": "dist/node/index.node.js",
-  "module": "dist/browser/index.browser.js",
+  "main": "dist/cjs/index.node.cjs",
+  "module": "dist/node/index.node.js",
   "types": "dist/node/index.d.ts",
   "repository": {
     "type": "git",
@@ -13,8 +13,8 @@
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/node/index.d.ts",
-      "import": "./dist/browser/index.browser.js",
-      "require": "./dist/node/index.node.js",
+      "import": "./dist/node/index.node.js",
+      "require": "./dist/cjs/index.node.cjs",
       "browser": "./dist/browser/index.browser.js",
       "node": "./dist/node/index.node.js",
       "default": "./dist/node/index.node.js"

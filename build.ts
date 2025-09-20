@@ -40,6 +40,30 @@ async function build() {
   });
   console.log(`✅ Browser build complete in ${((Date.now() - browserStart) / 1000).toFixed(2)}s`);
 
+  // Node CJS build
+  const cjsStart = Date.now();
+  console.log("🧱 Building @elizaos/plugin-openrouter for Node (CJS)...");
+  const cjsResult = await Bun.build({
+    entrypoints: ["src/index.node.ts"],
+    outdir: "dist/cjs",
+    target: "node",
+    format: "cjs",
+    sourcemap: "external",
+    minify: false,
+    external: [...externalDeps],
+  });
+  if (!cjsResult.success) {
+    console.error(cjsResult.logs);
+    throw new Error("CJS build failed");
+  }
+  try {
+    const { rename } = await import("node:fs/promises");
+    await rename("dist/cjs/index.node.js", "dist/cjs/index.node.cjs");
+  } catch (e) {
+    console.warn("CJS rename step warning:", e);
+  }
+  console.log(`✅ CJS build complete in ${((Date.now() - cjsStart) / 1000).toFixed(2)}s`);
+
   // TypeScript declarations
   const dtsStart = Date.now();
   console.log("📝 Generating TypeScript declarations...");
@@ -48,6 +72,7 @@ async function build() {
   await $`tsc --project tsconfig.build.json`;
   await mkdir("dist/node", { recursive: true });
   await mkdir("dist/browser", { recursive: true });
+  await mkdir("dist/cjs", { recursive: true });
   await writeFile(
     "dist/node/index.d.ts",
     `export * from '../index';
@@ -56,6 +81,12 @@ export { default } from '../index';
   );
   await writeFile(
     "dist/browser/index.d.ts",
+    `export * from '../index';
+export { default } from '../index';
+`
+  );
+  await writeFile(
+    "dist/cjs/index.d.ts",
     `export * from '../index';
 export { default } from '../index';
 `
