@@ -35,7 +35,8 @@ async function generateObjectWithModel(
   try {
     const { object, usage } = await generateObject({
       model: openrouter.chat(modelName),
-      output: "no-schema",
+      ...(params.schema && { schema: params.schema }),
+      output: (params.schema ? "object" : "no-schema") as any,
       prompt: params.prompt,
       temperature: temperature,
       experimental_repairText: getJsonRepairFunction(),

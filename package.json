@@ -1,6 +1,6 @@
 {
   "name": "@elizaos/plugin-openrouter",
-  "version": "1.5.10",
+  "version": "1.5.11",
   "type": "module",
   "main": "dist/cjs/index.node.cjs",
   "module": "dist/node/index.node.js",
@@ -133,6 +133,13 @@
         "description": "Whether to automatically cleanup generated images after a short delay.",
         "required": false,
         "default": false,
+        "sensitive": false
+      },
+      "OPENROUTER_TOOL_EXECUTION_MAX_STEPS": {
+        "type": "number",
+        "description": "Maximum number of steps for multi-step tool execution. Allows the AI to generate descriptive text after calling tools in AI SDK v5.",
+        "required": false,
+        "default": 15,
         "sensitive": false
       }
     }
