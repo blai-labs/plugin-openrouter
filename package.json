@@ -1,6 +1,6 @@
 {
   "name": "@elizaos/plugin-openrouter",
-  "version": "1.5.12",
+  "version": "1.5.13",
   "type": "module",
   "main": "dist/cjs/index.node.cjs",
   "module": "dist/node/index.node.js",
