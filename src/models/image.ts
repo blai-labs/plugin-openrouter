@@ -59,7 +59,7 @@ export async function handleImageDescription(
     const { text: responseText } = await generateText({
       model: model,
       messages: messages,
-      maxOutputTokens: maxOutputTokens,
+      maxTokens: maxOutputTokens,
     });
 
     return parseImageDescriptionResponse(responseText);

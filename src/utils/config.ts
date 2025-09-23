@@ -122,3 +122,22 @@ export function shouldAutoCleanupImages(runtime: IAgentRuntime): boolean {
   );
   return setting?.toLowerCase() === "true";
 }
+
+/**
+ * Helper function to get the max steps for tool execution
+ *
+ * @param runtime The runtime context
+ * @returns The maximum number of steps for tool execution (default: 15)
+ */
+export function getToolExecutionMaxSteps(runtime: IAgentRuntime): number {
+  const setting = getSetting(
+    runtime,
+    "OPENROUTER_TOOL_EXECUTION_MAX_STEPS",
+    "15",
+  );
+  const value = parseInt(setting || "15", 10);
+  // Ensure valid range (1-100)
+  if (Number.isNaN(value) || value < 1) return 15;
+  if (value > 100) return 100;
+  return value;
+}

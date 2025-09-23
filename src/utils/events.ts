@@ -22,8 +22,8 @@ export function emitModelUsageEvent(
         : prompt
       : "";
   // Coalesce optional usage fields to stable numbers
-  const inputTokens = Number(usage.inputTokens || 0);
-  const outputTokens = Number(usage.outputTokens || 0);
+  const inputTokens = Number((usage as { inputTokens?: number }).inputTokens || 0);
+  const outputTokens = Number((usage as { outputTokens?: number }).outputTokens || 0);
   const totalTokens = Number(
     usage.totalTokens != null ? usage.totalTokens : inputTokens + outputTokens,
   );

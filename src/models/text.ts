@@ -5,7 +5,7 @@ import type { Tool, ToolChoice } from "ai";
 
 import { createOpenRouterProvider } from "../providers";
 import type { ToolCall, ToolResponse, ToolResult } from "../types";
-import { getSmallModel, getLargeModel } from "../utils/config";
+import { getSmallModel, getLargeModel, getToolExecutionMaxSteps } from "../utils/config";
 import { emitModelUsageEvent } from "../utils/events";
 import { handleEmptyToolResponse, decodeBase64Fields } from "../utils/helpers";
 
@@ -55,6 +55,9 @@ async function generateTextWithModel(
   // Add tools if provided
   if (tools) {
     (generateParams as any).tools = tools;
+    const maxSteps = getToolExecutionMaxSteps(runtime);
+    (generateParams as any).maxSteps = maxSteps;
+    logger.log(`[OpenRouter] Using maxSteps: ${maxSteps} for tool execution`);
   }
 
   // Add toolChoice if provided
