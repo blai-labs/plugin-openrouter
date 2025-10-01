@@ -23,6 +23,20 @@ export interface ToolResponse {
   text: string;
   toolCalls: ToolCall[];
   toolResults: ToolResult[];
+  steps?: Array<{
+    toolCalls?: Array<{
+      type: 'tool-call';
+      toolCallId: string;
+      toolName: string;
+      input: any;
+    }>;
+    toolResults?: Array<{
+      toolCallId: string;
+      result?: any;
+    }>;
+    text?: string;
+    finishReason?: string;
+  }>;
   usage?: LanguageModelUsage;
   finishReason?: string;
 }

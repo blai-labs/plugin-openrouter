@@ -1,6 +1,6 @@
 import type { GenerateTextParams, IAgentRuntime } from "@elizaos/core";
 import { logger, ModelType } from "@elizaos/core";
-import { generateText } from "ai";
+import { generateText, stepCountIs } from "ai";
 import type { Tool, ToolChoice } from "ai";
 
 import { createOpenRouterProvider } from "../providers";
@@ -36,7 +36,7 @@ async function generateTextWithModel(
   const modelLabel =
     modelType === ModelType.TEXT_SMALL ? "TEXT_SMALL" : "TEXT_LARGE";
 
-  logger.log(
+  logger.debug(
     `[OpenRouter] Generating text with ${modelLabel} model: ${modelName}`,
   );
 
@@ -56,8 +56,9 @@ async function generateTextWithModel(
   if (tools) {
     (generateParams as any).tools = tools;
     const maxSteps = getToolExecutionMaxSteps(runtime);
-    (generateParams as any).maxSteps = maxSteps;
-    logger.log(`[OpenRouter] Using maxSteps: ${maxSteps} for tool execution`);
+
+    (generateParams as any).stopWhen = stepCountIs(maxSteps);
+    logger.debug(`[OpenRouter] Using maxSteps: ${maxSteps} for tool execution`);
   }
 
   // Add toolChoice if provided
@@ -77,14 +78,19 @@ async function generateTextWithModel(
           ...(stepResult.toolCalls as any),
         ];
       }
-      if (stepResult.toolResults && stepResult.toolResults.length > 0) {
-        const decodedToolResults = (stepResult.toolResults as any[]).map(
-          (result: any) => ({
-            toolCallId: result.toolCallId,
-            result: decodeBase64Fields(result.result),
-          }),
-        );
-        capturedToolResults = [...capturedToolResults, ...decodedToolResults];
+
+      // Extract tool results from content array in steps
+      if (stepResult.content && Array.isArray(stepResult.content)) {
+        const toolResultsFromContent = stepResult.content
+          .filter((content: any) => content.type === 'tool-result' && content.output)
+          .map((content: any) => ({
+            toolCallId: content.toolCallId,
+            result: decodeBase64Fields(content.output),
+          }));
+
+        if (toolResultsFromContent.length > 0) {
+          capturedToolResults = [...capturedToolResults, ...toolResultsFromContent];
+        }
       }
     };
   }
@@ -108,16 +114,13 @@ async function generateTextWithModel(
     emitModelUsageEvent(runtime, modelType, prompt, response.usage);
   }
 
-  // If tools were used, return the full response object to access toolCalls and toolResults
-  if (
-    tools &&
-    (capturedToolCalls.length > 0 || capturedToolResults.length > 0)
-  ) {
+  // If tools were used, return the full response object with steps for proper tool results access
+  if (tools && response.steps && response.steps.length > 0) {
     return {
       text: responseText,
       toolCalls: capturedToolCalls,
       toolResults: capturedToolResults,
-      // Include other useful properties
+      steps: response.steps,
       usage: response.usage,
       finishReason: response.finishReason,
     };
