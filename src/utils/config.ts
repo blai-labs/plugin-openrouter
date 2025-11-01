@@ -1,4 +1,4 @@
-import type { IAgentRuntime } from "@elizaos/core";
+import type { IAgentRuntime } from '@elizaos/core';
 
 /**
  * Retrieves a configuration setting from the runtime, falling back to environment variables or a default value if not found.
@@ -10,7 +10,7 @@ import type { IAgentRuntime } from "@elizaos/core";
 export function getSetting(
   runtime: IAgentRuntime,
   key: string,
-  defaultValue?: string,
+  defaultValue?: string
 ): string | undefined {
   return runtime.getSetting(key) ?? process.env[key] ?? defaultValue;
 }
@@ -21,20 +21,13 @@ export function getSetting(
  * @returns The resolved base URL for OpenRouter API requests.
  */
 export function getBaseURL(runtime: IAgentRuntime): string {
-  const browserURL = getSetting(runtime, "OPENROUTER_BROWSER_BASE_URL");
-  if (
-    typeof globalThis !== "undefined" &&
-    (globalThis as any).document &&
-    browserURL
-  ) {
+  const browserURL = getSetting(runtime, 'OPENROUTER_BROWSER_BASE_URL');
+  if (typeof globalThis !== 'undefined' && (globalThis as any).document && browserURL) {
     return browserURL;
   }
   return (
-    getSetting(
-      runtime,
-      "OPENROUTER_BASE_URL",
-      "https://openrouter.ai/api/v1",
-    ) || "https://openrouter.ai/api/v1"
+    getSetting(runtime, 'OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1') ||
+    'https://openrouter.ai/api/v1'
   );
 }
 
@@ -45,7 +38,7 @@ export function getBaseURL(runtime: IAgentRuntime): string {
  * @returns The configured API key
  */
 export function getApiKey(runtime: IAgentRuntime): string | undefined {
-  return getSetting(runtime, "OPENROUTER_API_KEY");
+  return getSetting(runtime, 'OPENROUTER_API_KEY');
 }
 
 /**
@@ -56,9 +49,9 @@ export function getApiKey(runtime: IAgentRuntime): string | undefined {
  */
 export function getSmallModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, "OPENROUTER_SMALL_MODEL") ??
-    getSetting(runtime, "SMALL_MODEL", "google/gemini-2.0-flash-001") ??
-    "google/gemini-2.0-flash-001"
+    getSetting(runtime, 'OPENROUTER_SMALL_MODEL') ??
+    getSetting(runtime, 'SMALL_MODEL', 'google/gemini-2.0-flash-001') ??
+    'google/gemini-2.0-flash-001'
   );
 }
 
@@ -70,9 +63,9 @@ export function getSmallModel(runtime: IAgentRuntime): string {
  */
 export function getLargeModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, "OPENROUTER_LARGE_MODEL") ??
-    getSetting(runtime, "LARGE_MODEL", "google/gemini-2.5-flash") ??
-    "google/gemini-2.5-flash"
+    getSetting(runtime, 'OPENROUTER_LARGE_MODEL') ??
+    getSetting(runtime, 'LARGE_MODEL', 'google/gemini-2.5-flash') ??
+    'google/gemini-2.5-flash'
   );
 }
 
@@ -84,9 +77,9 @@ export function getLargeModel(runtime: IAgentRuntime): string {
  */
 export function getImageModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, "OPENROUTER_IMAGE_MODEL") ??
-    getSetting(runtime, "IMAGE_MODEL", "x-ai/grok-2-vision-1212") ??
-    "x-ai/grok-2-vision-1212"
+    getSetting(runtime, 'OPENROUTER_IMAGE_MODEL') ??
+    getSetting(runtime, 'IMAGE_MODEL', 'x-ai/grok-2-vision-1212') ??
+    'x-ai/grok-2-vision-1212'
   );
 }
 
@@ -98,13 +91,23 @@ export function getImageModel(runtime: IAgentRuntime): string {
  */
 export function getImageGenerationModel(runtime: IAgentRuntime): string {
   return (
-    getSetting(runtime, "OPENROUTER_IMAGE_GENERATION_MODEL") ??
-    getSetting(
-      runtime,
-      "IMAGE_GENERATION_MODEL",
-      "google/gemini-2.5-flash-image-preview",
-    ) ??
-    "google/gemini-2.5-flash-image-preview"
+    getSetting(runtime, 'OPENROUTER_IMAGE_GENERATION_MODEL') ??
+    getSetting(runtime, 'IMAGE_GENERATION_MODEL', 'google/gemini-2.5-flash-image-preview') ??
+    'google/gemini-2.5-flash-image-preview'
+  );
+}
+
+/**
+ * Helper function to get the embedding model name with fallbacks
+ *
+ * @param runtime The runtime context
+ * @returns The configured embedding model name
+ */
+export function getEmbeddingModel(runtime: IAgentRuntime): string {
+  return (
+    getSetting(runtime, 'OPENROUTER_EMBEDDING_MODEL') ??
+    getSetting(runtime, 'EMBEDDING_MODEL', 'openai/text-embedding-3-small') ??
+    'openai/text-embedding-3-small'
   );
 }
 
@@ -115,12 +118,8 @@ export function getImageGenerationModel(runtime: IAgentRuntime): string {
  * @returns Whether to auto-cleanup generated images (default: false)
  */
 export function shouldAutoCleanupImages(runtime: IAgentRuntime): boolean {
-  const setting = getSetting(
-    runtime,
-    "OPENROUTER_AUTO_CLEANUP_IMAGES",
-    "false",
-  );
-  return setting?.toLowerCase() === "true";
+  const setting = getSetting(runtime, 'OPENROUTER_AUTO_CLEANUP_IMAGES', 'false');
+  return setting?.toLowerCase() === 'true';
 }
 
 /**
@@ -130,12 +129,8 @@ export function shouldAutoCleanupImages(runtime: IAgentRuntime): boolean {
  * @returns The maximum number of steps for tool execution (default: 15)
  */
 export function getToolExecutionMaxSteps(runtime: IAgentRuntime): number {
-  const setting = getSetting(
-    runtime,
-    "OPENROUTER_TOOL_EXECUTION_MAX_STEPS",
-    "15",
-  );
-  const value = parseInt(setting || "15", 10);
+  const setting = getSetting(runtime, 'OPENROUTER_TOOL_EXECUTION_MAX_STEPS', '15');
+  const value = parseInt(setting || '15', 10);
   // Ensure valid range (1-100)
   if (Number.isNaN(value) || value < 1) return 15;
   if (value > 100) return 100;
