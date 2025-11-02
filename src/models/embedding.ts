@@ -12,8 +12,8 @@ export async function handleTextEmbedding(
 ): Promise<number[]> {
   const embeddingModelName = getEmbeddingModel(runtime);
   const embeddingDimension = Number.parseInt(
-    getSetting(runtime, 'OPENROUTER_EMBEDDING_DIMENSIONS', '1536') ||
-      getSetting(runtime, 'EMBEDDING_DIMENSIONS', '1536') ||
+    getSetting(runtime, 'OPENROUTER_EMBEDDING_DIMENSIONS') ??
+      getSetting(runtime, 'EMBEDDING_DIMENSIONS') ??
       '1536',
     10
   ) as (typeof VECTOR_DIMS)[keyof typeof VECTOR_DIMS];
