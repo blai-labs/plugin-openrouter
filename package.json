@@ -1,13 +1,13 @@
 {
-  "name": "@elizaos/plugin-openrouter",
-  "version": "1.5.15",
+  "name": "@blailabs/plugin-openrouter",
+  "version": "1.5.16",
   "type": "module",
   "main": "dist/cjs/index.node.cjs",
   "module": "dist/node/index.node.js",
   "types": "dist/node/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/elizaos-plugins/plugin-openrouter.git"
+    "url": "git+https://github.com/blai-labs/plugin-openrouter.git"
   },
   "exports": {
     "./package.json": "./package.json",
