@@ -27,18 +27,18 @@ async function build() {
   console.log(`✅ Node build complete in ${((Date.now() - nodeStart) / 1000).toFixed(2)}s`);
 
   // Browser build
-  const browserStart = Date.now();
-  console.log("🌐 Building @elizaos/plugin-openrouter for Browser...");
-  await Bun.build({
-    entrypoints: ["src/index.browser.ts"],
-    outdir: "dist/browser",
-    target: "browser",
-    format: "esm",
-    sourcemap: "external",
-    minify: false,
-    external: externalDeps,
-  });
-  console.log(`✅ Browser build complete in ${((Date.now() - browserStart) / 1000).toFixed(2)}s`);
+  // const browserStart = Date.now();
+  // console.log("🌐 Building @elizaos/plugin-openrouter for Browser...");
+  // await Bun.build({
+  //   entrypoints: ["src/index.browser.ts"],
+  //   outdir: "dist/browser",
+  //   target: "browser",
+  //   format: "esm",
+  //   sourcemap: "external",
+  //   minify: false,
+  //   external: externalDeps,
+  // });
+  // console.log(`✅ Browser build complete in ${((Date.now() - browserStart) / 1000).toFixed(2)}s`);
 
   // Node CJS build
   const cjsStart = Date.now();
